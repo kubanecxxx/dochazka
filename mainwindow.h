@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include "classday.h"
+#include "classmonth.h"
+#include "classyear.h"
 
 namespace Ui {
 class MainWindow;
@@ -26,17 +28,24 @@ private slots:
     void on_editPrichod2_textEdited(const QString &arg1);
     void on_editOdchod1_textEdited(const QString &arg1);
     void on_editPrichod1_textEdited(const QString &arg1);
+    void on_calendarWidget_clicked(const QDate &date);
 
 private:
     Ui::MainWindow *ui;
 
     void fillFormDay(const ClassDay & day);
+    void fillFormDay() {fillFormDay(*PlonkDay);}
+    void fillFormMonth(const ClassMonth & month);
+    void fillFormMonth() {fillFormMonth(*PlonkMonth);}
     void AddRow();
 
-    ClassDay day1;
     ClassDay * PlonkDay;
+    ClassMonth * PlonkMonth;
+    ClassYear * year;
 
     void SetTime(const QString & arg, QTime & time,QObject * widget);
+    void LoadCombos(const ClassDay & day);
+    void LoadCombos() {LoadCombos(*PlonkDay);}
 };
 
 #endif // MAINWINDOW_H

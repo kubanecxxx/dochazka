@@ -6,6 +6,7 @@
 #include <QList>
 
 #define TIMEFORMAT "h:mm"
+#define DATEFORMAT "dd.MM.yyyy"
 #define ESCAPE ";;; "
 #define ESC_LEN 4
 
@@ -36,6 +37,8 @@ public:
     inline void DelPrace(int i) {prace.removeAt(i);}
     prace_t * GetPraceP(int i) const;
     inline QList <prace_t*> GetPrace() const {return prace;}
+
+    bool IsOk() const;
 
 private:
     QList<prace_t*> prace;

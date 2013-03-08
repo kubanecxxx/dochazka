@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     classday.cpp \
-    classmonth.cpp
+    classmonth.cpp \
+    classyear.cpp
 
 HEADERS  += mainwindow.h \
     classday.h \
-    classmonth.h
+    classmonth.h \
+    classyear.h
 
 FORMS    += mainwindow.ui

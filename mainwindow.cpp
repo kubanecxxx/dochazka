@@ -9,23 +9,16 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    PlonkDay = new ClassDay;
-
-    QFile fil("sobor");
-    fil.open(QFile::ReadOnly);
-    QString str = fil.readAll();
-    PlonkDay->ReadTextLine(str);
-    fillFormDay(*PlonkDay);
-
+    year = new ClassYear;
+    PlonkDay = year->GetDay(QDate::currentDate());
+    PlonkMonth = year->GetMonth(QDate::currentDate());
+    fillFormDay();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-
-
 
 void MainWindow::fillFormDay(const ClassDay &day)
 {
@@ -76,24 +69,17 @@ void MainWindow::fillFormDay(const ClassDay &day)
         i++;
     }
     AddRow();
+    LoadCombos();
 }
 
 void MainWindow::on_actionSave_triggered()
 {
-    // nahrát plonkday do seznamu dnů třída classMonth
-    QString ret= PlonkDay->GetTextLine();
-    qDebug() << ret;
-    QFile fil("sobor");
-    fil.open(QFile::WriteOnly);
-    fil.write(ret.toLatin1());
-    fil.close();
+    year->SaveFile();
 }
 
 void MainWindow::on_actionPrehled_triggered()
 {
-
-
-    fillFormDay(*PlonkDay);
+    fillFormDay();
 }
 
 void MainWindow::on_table_itemChanged(QTableWidgetItem *item)
@@ -134,6 +120,7 @@ void MainWindow::on_table_itemChanged(QTableWidgetItem *item)
         prace->prescas = jo;
     }
 
+    LoadCombos();
 }
 
 void MainWindow::AddRow()
@@ -185,6 +172,7 @@ void MainWindow::SetTime(const QString &arg, QTime &time,QObject* widget)
 
     pal.setColor(QPalette::Text,col);
     edit->setPalette(pal);
+    LoadCombos();
 }
 
 void MainWindow::on_editPrichod2_textEdited(const QString &arg1)
@@ -205,4 +193,47 @@ void MainWindow::on_editPrichod1_textEdited(const QString &arg1)
 void MainWindow::on_editOdchod2_textEdited(const QString &arg1)
 {
     SetTime(arg1,PlonkDay->Odchod2,sender());
+}
+
+void MainWindow::on_calendarWidget_clicked(const QDate &date)
+{
+    PlonkDay  = year->GetDay(date);
+    PlonkMonth =  year->GetMonth(date);
+
+    fillFormDay();
+    fillFormMonth();
+}
+
+void MainWindow::LoadCombos(const ClassDay &day)
+{
+    ui->editVykazano->setText(QString("%1").arg(day.GetHodinyVykazano()));
+    ui->editVpraci->setText(QString("%1").arg(day.GetHodinyPrace()));
+
+    QPalette pal;
+    QColor col;
+
+    if (day.IsOk())
+    {
+        col = Qt::black;
+    }
+    else
+    {
+        col = Qt::red;
+    }
+
+    pal.setColor(QPalette::Text,col);
+    ui->editVpraci->setPalette(pal);
+    ui->editVykazano->setPalette(pal);
+
+    fillFormMonth();
+}
+
+void MainWindow::fillFormMonth(const ClassMonth & month)
+{
+    //ui->editMPres->setText(QString("%1").arg(month.get));
+    ui->editMVykazano->setText(QString("%1").arg(month.GetVykazanoHours()));
+    ui->editMRegul->setText(QString("%1").arg(month.GetEstimatedHours()));
+    ui->editMVpraci->setText(QString("%1").arg(month.GetHoursInWork()));
+    //ui->editMPVykazano->setText(QString("%1").arg(month.GetVykazanoHours()));
+    //ui->editMDovol
 }

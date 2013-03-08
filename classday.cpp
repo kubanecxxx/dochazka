@@ -1,5 +1,6 @@
 #include "classday.h"
 #include <QStringList>
+#include <math.h>
 
 ClassDay::ClassDay()
 {
@@ -47,6 +48,10 @@ ClassDay::prace_t * ClassDay::GetPraceP(int i) const
 QString ClassDay::GetTextLine() const
 {
     QString vystup;
+
+    if (!Prichod1.isValid())
+        return vystup;
+
     //vystup
     vystup += Prichod1.toString(TIMEFORMAT);
     vystup += ESCAPE;
@@ -97,8 +102,9 @@ void ClassDay::ReadTextLine(const QString &line)
     Odchod2 = QTime::fromString(list.at(3),TIMEFORMAT);
 
     int count = list.at(4).toInt();
-    for (int i = 0; i < count; i++)
+    for (int j = 0; j < count; j++)
     {
+        int i = j * 4;
         prace_t * prac = new prace_t;
         prace.push_back(prac);
         prac->hodiny = list.at(5 + i).toFloat();
@@ -112,7 +118,37 @@ void ClassDay::ReadTextLine(const QString &line)
 
 float ClassDay::GetHodinyPrace() const
 {
+    QTime sest = QTime::fromString("6:00",TIMEFORMAT);
+    QTime obed1 = QTime::fromString("11:30",TIMEFORMAT);
+    QTime obed2 = QTime::fromString("12:00",TIMEFORMAT);
+    int sec1;
+    int sec2;
 
+    //saturovat od 6 rána
+    if (Prichod1 < sest)
+        sec1 = sest.secsTo(Odchod1);
+    else
+        sec1 = Prichod1.secsTo(Odchod1);
+
+    //nepočitat přestávku od 11:30 do 12:00
+    if (Prichod1 <= obed1 && Odchod1 >= obed2)
+        sec1 -= 1800;
+
+    sec1 = floor(sec1/1800.0) * 1800;
+
+    if (Prichod2 > Odchod1)
+    {
+        sec2 = Prichod2.secsTo(Odchod2);
+        sec2 = floor(sec2/1800.0) * 1800;
+    }
+    else
+    {
+        sec2 = 0;
+    }
+
+    float cas = (sec1 + sec2) / 3600.0;
+
+    return cas;
 }
 
 float ClassDay::GetHodinyVykazano() const
@@ -124,4 +160,9 @@ float ClassDay::GetHodinyVykazano() const
     }
 
     return ho;
+}
+
+bool ClassDay::IsOk() const
+{
+    return (GetHodinyPrace() == GetHodinyVykazano());
 }
