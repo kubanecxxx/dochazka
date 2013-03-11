@@ -1,7 +1,9 @@
 #include "classmonth.h"
 
-ClassMonth::ClassMonth()
+ClassMonth::ClassMonth(const QDate & date):
+    datum(date)
 {
+
 }
 
 ClassMonth::~ClassMonth()
@@ -19,7 +21,7 @@ ClassDay * ClassMonth::GetDay(QDate date)
     ClassDay * day=days.value(date,NULL);
     if (day == NULL)
     {
-        day = new ClassDay;
+        day = new ClassDay(date);
         days.insert(date,day);
     }
 
@@ -77,7 +79,21 @@ void ClassMonth::Unserialize(QFile * file)
 
 float ClassMonth::GetEstimatedHours() const
 {
+    //projit celej měsic a zjistit počet pracovnich dnu a vynasobit 7.5
+    int mont = datum.month();
+    int year = datum.year();
 
+    int dny = 0;
+    for (int i = 1 ; i <32 ;i++)
+    {
+        QDate temp(year,mont,i);
+        if (temp.isValid() && !(temp.dayOfWeek() % 6 == 0 ||
+                                temp.dayOfWeek() % 7 == 0))
+            dny++;
+    }
+
+
+    return dny * 7.5;
 }
 
 float ClassMonth::GetHoursInWork() const

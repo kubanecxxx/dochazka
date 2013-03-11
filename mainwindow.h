@@ -30,6 +30,8 @@ private slots:
     void on_editPrichod1_textEdited(const QString &arg1);
     void on_calendarWidget_clicked(const QDate &date);
 
+    void on_checkDovolena_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
 

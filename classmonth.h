@@ -9,7 +9,7 @@
 class ClassMonth
 {
 public:
-    ClassMonth();
+    ClassMonth(const QDate & date);
     ~ClassMonth();
     //vyhodi počet dní ktery by si měl odpracovat
     //počitá aji dovolenou
@@ -26,6 +26,7 @@ private:
     QMap<QDate,ClassDay *> days;
     QList<QDate> dovolena;
     ClassMonth(ClassMonth & cpy);
+    const QDate datum;
 };
 
 #endif // CLASSMONTH_H

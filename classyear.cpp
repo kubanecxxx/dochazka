@@ -35,7 +35,9 @@ ClassMonth * ClassYear::GetMonth(int mon)
 
 ClassMonth * ClassYear::AddMonth(int mont)
 {
-    ClassMonth * mon = new ClassMonth;
+    QDate date;
+    date.setDate(2013,mont,1);
+    ClassMonth * mon = new ClassMonth(date);
     mesice.insert(mont,mon);
 
     return mon;

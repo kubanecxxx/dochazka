@@ -13,7 +13,7 @@
 class ClassDay
 {
 public:
-    ClassDay();
+    ClassDay(const QDate & datum);
     ~ClassDay();
     ClassDay(ClassDay & cpy);
 
@@ -25,8 +25,15 @@ public:
         bool prescas;
     } prace_t;      //řádek v tabulce
 
+    //počet hodiny v práci is přesčasem
     float GetHodinyPrace() const;
+    //počet vykázanéch hodin, bez přesčasu
     float GetHodinyVykazano() const;
+    //počet hodin v práci přesčas
+    float GetHodinyPrescas() const ;
+    //počet vykazanéch přesčasu
+    float GetHodinyPrescasVykazano() const;
+
     QString GetTextLine() const;
     void ReadTextLine(const QString & line);
 
@@ -39,6 +46,10 @@ public:
     inline QList <prace_t*> GetPrace() const {return prace;}
 
     bool IsOk() const;
+    bool IsNotWeekend() const;
+    const QDate datum;
+
+    bool dovolena;
 
 private:
     QList<prace_t*> prace;

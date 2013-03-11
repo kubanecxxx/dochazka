@@ -2,8 +2,11 @@
 #include <QStringList>
 #include <math.h>
 
-ClassDay::ClassDay()
+ClassDay::ClassDay(const QDate & date):
+    datum(date),
+    dovolena(false)
 {
+
 }
 
 
@@ -34,6 +37,12 @@ ClassDay::prace_t * ClassDay::AddPrace()
     prace_t * prac = new prace_t;
     prace.push_back(prac);
 
+    //sobota neděle
+    if (!IsNotWeekend())
+    {
+        prac->prescas = true;
+    }
+
     return prac;
 }
 
@@ -60,6 +69,9 @@ QString ClassDay::GetTextLine() const
     vystup += Prichod2.toString(TIMEFORMAT);
     vystup += ESCAPE;
     vystup += Odchod2.toString(TIMEFORMAT);
+    vystup += ESCAPE;
+
+    vystup += QString("%1").arg(dovolena);
     vystup += ESCAPE;
 
     vystup += QString("%1").arg(prace.count());
@@ -100,17 +112,19 @@ void ClassDay::ReadTextLine(const QString &line)
     Odchod1 = QTime::fromString(list.at(1),TIMEFORMAT);
     Prichod2 = QTime::fromString(list.at(2),TIMEFORMAT);
     Odchod2 = QTime::fromString(list.at(3),TIMEFORMAT);
+    dovolena = list.at(4).toInt();
 
-    int count = list.at(4).toInt();
+    int count = list.at(5).toInt();
+#define OFFSET 6
     for (int j = 0; j < count; j++)
     {
         int i = j * 4;
         prace_t * prac = new prace_t;
         prace.push_back(prac);
-        prac->hodiny = list.at(5 + i).toFloat();
-        prac->hlaseni = list.at(6+i);
-        prac->Poznamka = list.at(7+i);
-        prac->prescas = list.at(8+i).toInt();
+        prac->hodiny = list.at(OFFSET + i).toFloat();
+        prac->hlaseni = list.at(OFFSET + 1 + i);
+        prac->Poznamka = list.at(OFFSET + 2 + i);
+        prac->prescas = list.at(OFFSET + 3 + i).toInt();
     }
 
     asm("nop");
@@ -123,6 +137,9 @@ float ClassDay::GetHodinyPrace() const
     QTime obed2 = QTime::fromString("12:00",TIMEFORMAT);
     int sec1;
     int sec2;
+
+    if (!Prichod1.isValid())
+        return 0;
 
     //saturovat od 6 rána
     if (Prichod1 < sest)
@@ -156,6 +173,7 @@ float ClassDay::GetHodinyVykazano() const
     float ho = 0;
     foreach(prace_t * prac, prace)
     {
+        if (!prac->prescas)
         ho += prac->hodiny;
     }
 
@@ -164,5 +182,36 @@ float ClassDay::GetHodinyVykazano() const
 
 bool ClassDay::IsOk() const
 {
-    return (GetHodinyPrace() == GetHodinyVykazano());
+    return (GetHodinyPrace() == (GetHodinyVykazano() + GetHodinyPrescasVykazano()));
+}
+
+float ClassDay::GetHodinyPrescasVykazano() const
+{
+    float ho = 0;
+    foreach(prace_t * prac, prace)
+    {
+        if (prac->prescas)
+        ho += prac->hodiny;
+    }
+
+    return ho;
+
+}
+
+float ClassDay::GetHodinyPrescas() const
+{
+    if (IsNotWeekend())
+        return (7.5 - GetHodinyPrace());
+    else
+        return GetHodinyPrace();
+}
+
+bool ClassDay::IsNotWeekend() const
+{
+    bool sob = datum.dayOfWeek() % 6 == 0;
+    bool ned = datum.dayOfWeek() % 7 == 0;
+
+    bool can = !sob * !ned;
+
+    return can;
 }

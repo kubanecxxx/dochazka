@@ -85,7 +85,8 @@ void MainWindow::on_actionPrehled_triggered()
 void MainWindow::on_table_itemChanged(QTableWidgetItem *item)
 {
     int row = item->row();
-    if (row < 0)
+    int col = item->column();
+    if (row < 0 || col < 0)
         return;
 
 
@@ -146,7 +147,15 @@ void MainWindow::AddRow()
 
     //prescas
     item = new QTableWidgetItem;
-    item->setCheckState(Qt::Unchecked);
+    if (PlonkDay->IsNotWeekend())
+    {
+        item->setCheckState(Qt::Unchecked);
+    }
+    else
+    {
+        item->setCheckState(Qt::Checked);
+        item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+    }
     ui->table->setItem(i,3,item);
 
     connect(ui->table,SIGNAL(itemChanged(QTableWidgetItem*)),
@@ -208,6 +217,9 @@ void MainWindow::LoadCombos(const ClassDay &day)
 {
     ui->editVykazano->setText(QString("%1").arg(day.GetHodinyVykazano()));
     ui->editVpraci->setText(QString("%1").arg(day.GetHodinyPrace()));
+    ui->editPrescas->setText(QString("%1").arg(day.GetHodinyPrescasVykazano()));
+    ui->checkDovolena->setChecked(day.dovolena);
+    ui->checkDovolena->setEnabled(day.IsNotWeekend());
 
     QPalette pal;
     QColor col;
@@ -224,6 +236,7 @@ void MainWindow::LoadCombos(const ClassDay &day)
     pal.setColor(QPalette::Text,col);
     ui->editVpraci->setPalette(pal);
     ui->editVykazano->setPalette(pal);
+    ui->editPrescas->setPalette(pal);
 
     fillFormMonth();
 }
@@ -236,4 +249,15 @@ void MainWindow::fillFormMonth(const ClassMonth & month)
     ui->editMVpraci->setText(QString("%1").arg(month.GetHoursInWork()));
     //ui->editMPVykazano->setText(QString("%1").arg(month.GetVykazanoHours()));
     //ui->editMDovol
+}
+
+void MainWindow::on_checkDovolena_clicked(bool checked)
+{
+    if (checked)
+        ui->checkDovolena->setText(trUtf8("Ano"));
+    else
+        ui->checkDovolena->setText(trUtf8("Ne"));
+
+    PlonkDay->dovolena = checked;
+    ui->table->setDisabled(checked);
 }
