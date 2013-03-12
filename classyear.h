@@ -12,8 +12,9 @@ public:
     ~ClassYear();
     ClassDay * GetDay(QDate date);
     ClassMonth * GetMonth(QDate date) {return GetMonth(date.month());}
-    void SaveFile();
+    void SaveFile() const;
     void LoadFile();
+    int GetVolnaDovolena() const;
 
 private:
 

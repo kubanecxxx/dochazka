@@ -16,11 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     classday.cpp \
     classmonth.cpp \
-    classyear.cpp
+    classyear.cpp \
+    dialogprehled.cpp
 
 HEADERS  += mainwindow.h \
     classday.h \
     classmonth.h \
-    classyear.h
+    classyear.h \
+    dialogprehled.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    dialogprehled.ui

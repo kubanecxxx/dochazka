@@ -29,7 +29,6 @@ private slots:
     void on_editOdchod1_textEdited(const QString &arg1);
     void on_editPrichod1_textEdited(const QString &arg1);
     void on_calendarWidget_clicked(const QDate &date);
-
     void on_checkDovolena_clicked(bool checked);
 
 private:
@@ -37,7 +36,7 @@ private:
 
     void fillFormDay(const ClassDay & day);
     void fillFormDay() {fillFormDay(*PlonkDay);}
-    void fillFormMonth(const ClassMonth & month);
+    void fillFormMonth(ClassMonth & month);
     void fillFormMonth() {fillFormMonth(*PlonkMonth);}
     void AddRow();
 

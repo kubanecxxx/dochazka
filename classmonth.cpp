@@ -92,6 +92,7 @@ float ClassMonth::GetEstimatedHours() const
             dny++;
     }
 
+    dny -= GetVybranaDovolena();
 
     return dny * 7.5;
 }
@@ -122,4 +123,43 @@ float ClassMonth::GetVykazanoHours() const
     }
 
     return hodiny;
+}
+
+float ClassMonth::GetVykazanoPrescas() const
+{
+    QMapIterator<QDate,ClassDay*> it(days);
+    float hodiny = 0;
+
+    while(it.hasNext())
+    {
+        it.next();
+        hodiny += it.value()->GetHodinyPrescasVykazano();
+    }
+
+    return hodiny;
+}
+
+int ClassMonth::GetVybranaDovolena() const
+{
+    QMapIterator<QDate,ClassDay*> it(days);
+    int hodiny = 0;
+
+    while(it.hasNext())
+    {
+        it.next();
+        if (it.value()->dovolena)
+            hodiny++;
+    }
+
+    return hodiny;
+}
+
+bool ClassMonth::IsVykazanoVPraci() const
+{
+    return (GetHoursInWork() == GetVykazanoHours() + GetVykazanoPrescas());
+}
+
+bool ClassMonth::IsVykazanoRegulerne() const
+{
+    return (GetEstimatedHours() == GetVykazanoHours());
 }

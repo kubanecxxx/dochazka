@@ -16,6 +16,12 @@ public:
     float GetEstimatedHours() const;
     float GetHoursInWork() const;
     float GetVykazanoHours() const;
+    float GetVykazanoPrescas() const;
+    int GetVybranaDovolena() const;
+
+    bool IsVykazanoVPraci() const;
+    bool IsVykazanoRegulerne() const;
+    QList<ClassDay *> GetDays() const {return days.values();}
 
     ClassDay * GetDay(QDate date);
     void RemoveDay(QDate date) {days.remove(date);}

@@ -1,7 +1,8 @@
 #include "classyear.h"
 #include <QDebug>
 
-ClassYear::ClassYear()
+ClassYear::ClassYear():
+    volneDovolene(10)   //načitat z konfiguráku
 {
     //načist ze souboru
     file = new QFile("soubor.txt");
@@ -43,7 +44,7 @@ ClassMonth * ClassYear::AddMonth(int mont)
     return mon;
 }
 
-void ClassYear::SaveFile()
+void ClassYear::SaveFile() const
 {
     file->open(QFile::WriteOnly);
 
@@ -81,4 +82,17 @@ void ClassYear::LoadFile()
     }
 
     file->close();
+}
+
+int ClassYear::GetVolnaDovolena() const
+{
+    int dovolena = volneDovolene;
+    QMapIterator<int, ClassMonth *> it(mesice);
+    while(it.hasNext())
+    {
+        it.next();
+        dovolena -= it.value()->GetVybranaDovolena();
+    }
+
+    return dovolena;
 }

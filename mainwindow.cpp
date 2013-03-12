@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include <QFile>
+#include "dialogprehled.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -79,7 +80,8 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionPrehled_triggered()
 {
-    fillFormDay();
+    DialogPrehled dlg(*PlonkMonth,this);
+    dlg.exec();
 }
 
 void MainWindow::on_table_itemChanged(QTableWidgetItem *item)
@@ -88,7 +90,6 @@ void MainWindow::on_table_itemChanged(QTableWidgetItem *item)
     int col = item->column();
     if (row < 0 || col < 0)
         return;
-
 
     if (row + 1 == ui->table->rowCount() && ui->table->item(ui->table->rowCount()-1,1)->text().count())
     {
@@ -210,7 +211,6 @@ void MainWindow::on_calendarWidget_clicked(const QDate &date)
     PlonkMonth =  year->GetMonth(date);
 
     fillFormDay();
-    fillFormMonth();
 }
 
 void MainWindow::LoadCombos(const ClassDay &day)
@@ -241,14 +241,47 @@ void MainWindow::LoadCombos(const ClassDay &day)
     fillFormMonth();
 }
 
-void MainWindow::fillFormMonth(const ClassMonth & month)
+void MainWindow::fillFormMonth(ClassMonth & month)
 {
-    //ui->editMPres->setText(QString("%1").arg(month.get));
     ui->editMVykazano->setText(QString("%1").arg(month.GetVykazanoHours()));
     ui->editMRegul->setText(QString("%1").arg(month.GetEstimatedHours()));
     ui->editMVpraci->setText(QString("%1").arg(month.GetHoursInWork()));
-    //ui->editMPVykazano->setText(QString("%1").arg(month.GetVykazanoHours()));
-    //ui->editMDovol
+    ui->editMPVykazano->setText(QString("%1").arg(month.GetVykazanoPrescas()));
+    ui->editMDovol->setText(QString("%1").arg(year->GetVolnaDovolena()));
+
+    QPalette pal;
+    QColor col;
+    if (month.IsVykazanoRegulerne())
+        col = Qt::black;
+    else
+        col = Qt::red;
+    pal.setColor(QPalette::Text,col);
+    ui->editMRegul->setPalette(pal);
+
+    if (month.IsVykazanoVPraci())
+        col = Qt::black;
+    else
+        col = Qt::red;
+    pal.setColor(QPalette::Text,col);
+    ui->editMPVykazano->setPalette(pal);
+    ui->editMVpraci->setPalette(pal);
+    ui->editMVykazano->setPalette(pal);
+
+    //kalendář vyplnit správnejma barvama
+    for (int i = 1; i <= QDate::currentDate().day(); i++)
+    {
+        QDate date(PlonkDay->datum.year(),PlonkDay->datum.month(),i);
+        bool bold = !month.GetDay(date)->IsOk();
+
+        QTextCharFormat format = ui->calendarWidget->dateTextFormat(date);
+        QBrush brush;
+        if (bold)
+            brush.setColor(Qt::cyan);
+        else
+            brush.setColor(Qt::white);
+        format.setBackground(brush);
+        ui->calendarWidget->setDateTextFormat(date,format);
+    }
 }
 
 void MainWindow::on_checkDovolena_clicked(bool checked)
@@ -260,4 +293,6 @@ void MainWindow::on_checkDovolena_clicked(bool checked)
 
     PlonkDay->dovolena = checked;
     ui->table->setDisabled(checked);
+
+    fillFormDay();
 }

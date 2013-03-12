@@ -141,6 +141,9 @@ float ClassDay::GetHodinyPrace() const
     if (!Prichod1.isValid())
         return 0;
 
+    if (dovolena)
+        return 0;
+
     //saturovat od 6 rána
     if (Prichod1 < sest)
         sec1 = sest.secsTo(Odchod1);
@@ -170,6 +173,9 @@ float ClassDay::GetHodinyPrace() const
 
 float ClassDay::GetHodinyVykazano() const
 {
+    if (dovolena)
+        return 0;
+
     float ho = 0;
     foreach(prace_t * prac, prace)
     {
@@ -182,11 +188,18 @@ float ClassDay::GetHodinyVykazano() const
 
 bool ClassDay::IsOk() const
 {
-    return (GetHodinyPrace() == (GetHodinyVykazano() + GetHodinyPrescasVykazano()));
+    if(IsNotWeekend())
+        return ((GetHodinyPrace() == (GetHodinyVykazano() + GetHodinyPrescasVykazano())
+                && Prichod1.isValid()) || dovolena);
+    else
+        return ((GetHodinyPrace() == (GetHodinyVykazano() + GetHodinyPrescasVykazano())));
 }
 
 float ClassDay::GetHodinyPrescasVykazano() const
 {
+    if (dovolena)
+        return 0;
+
     float ho = 0;
     foreach(prace_t * prac, prace)
     {
@@ -200,6 +213,9 @@ float ClassDay::GetHodinyPrescasVykazano() const
 
 float ClassDay::GetHodinyPrescas() const
 {
+    if (dovolena)
+        return 0;
+
     if (IsNotWeekend())
         return (7.5 - GetHodinyPrace());
     else
