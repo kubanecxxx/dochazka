@@ -5,12 +5,15 @@
 #include "classday.h"
 #include "classmonth.h"
 #include "classyear.h"
+#include "widgettoolbar.h"
 
 namespace Ui {
 class MainWindow;
 }
 
 class QTableWidgetItem;
+class QTextTable;
+class QLineEdit;
 
 class MainWindow : public QMainWindow
 {
@@ -30,15 +33,21 @@ private slots:
     void on_editPrichod1_textEdited(const QString &arg1);
     void on_calendarWidget_clicked(const QDate &date);
     void on_checkDovolena_clicked(bool checked);
+    void on_actionPrint_triggered();
+
+    void on_dovolenaChanged(int value);
 
 private:
     Ui::MainWindow *ui;
 
     void fillFormDay(const ClassDay & day);
-    void fillFormDay() {fillFormDay(*PlonkDay);}
     void fillFormMonth(ClassMonth & month);
-    void fillFormMonth() {fillFormMonth(*PlonkMonth);}
+    void recolorCalendar(ClassMonth & month,QDate date);
+    void setDovolena(bool enabled);
     void AddRow();
+    void printDay(const ClassDay & day, QTextTable * table);
+
+    void fillForm(void);
 
     ClassDay * PlonkDay;
     ClassMonth * PlonkMonth;
@@ -46,7 +55,8 @@ private:
 
     void SetTime(const QString & arg, QTime & time,QObject * widget);
     void LoadCombos(const ClassDay & day);
-    void LoadCombos() {LoadCombos(*PlonkDay);}
+
+    WidgetToolBar * tool;
 };
 
 #endif // MAINWINDOW_H

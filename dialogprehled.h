@@ -19,6 +19,9 @@ public:
 public slots:
     void Refresh();
     
+private slots:
+    void on_butRol_clicked();
+
 private:
     Ui::DialogPrehled *ui;
     const ClassMonth & month;

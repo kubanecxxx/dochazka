@@ -350,6 +350,9 @@ vykázáno</string>
    <addaction name="actionPrint"/>
    <addaction name="separator"/>
    <addaction name="actionPrehled"/>
+   <addaction name="separator"/>
+   <addaction name="actionSaveName"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionSave">
    <property name="text">
@@ -370,6 +373,11 @@ vykázáno</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionSaveName">
+   <property name="text">
+    <string>Uložit Jméno...</string>
    </property>
   </action>
  </widget>

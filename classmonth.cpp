@@ -154,6 +154,20 @@ int ClassMonth::GetVybranaDovolena() const
     return hodiny;
 }
 
+int ClassMonth::GetWorkCount() const
+{
+    QMapIterator<QDate,ClassDay*> it(days);
+    int hodiny = 0;
+
+    while(it.hasNext())
+    {
+        it.next();
+        hodiny += it.value()->GetPrace().count();
+    }
+
+    return hodiny;
+}
+
 bool ClassMonth::IsVykazanoVPraci() const
 {
     return (GetHoursInWork() == GetVykazanoHours() + GetVykazanoPrescas());

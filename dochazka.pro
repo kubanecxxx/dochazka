@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,13 +17,16 @@ SOURCES += main.cpp\
     classday.cpp \
     classmonth.cpp \
     classyear.cpp \
-    dialogprehled.cpp
+    dialogprehled.cpp \
+    widgettoolbar.cpp
 
 HEADERS  += mainwindow.h \
     classday.h \
     classmonth.h \
     classyear.h \
-    dialogprehled.h
+    dialogprehled.h \
+    widgettoolbar.h
 
 FORMS    += mainwindow.ui \
-    dialogprehled.ui
+    dialogprehled.ui \
+    widgettoolbar.ui

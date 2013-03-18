@@ -57,10 +57,10 @@ ClassDay::prace_t * ClassDay::GetPraceP(int i) const
 QString ClassDay::GetTextLine() const
 {
     QString vystup;
-
+/*
     if (!Prichod1.isValid())
         return vystup;
-
+*/
     //vystup
     vystup += Prichod1.toString(TIMEFORMAT);
     vystup += ESCAPE;

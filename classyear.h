@@ -15,6 +15,7 @@ public:
     void SaveFile() const;
     void LoadFile();
     int GetVolnaDovolena() const;
+    inline void SetVolnaDovolena(int dov) {volneDovolene = dov;}
 
 private:
 

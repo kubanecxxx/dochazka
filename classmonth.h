@@ -18,6 +18,7 @@ public:
     float GetVykazanoHours() const;
     float GetVykazanoPrescas() const;
     int GetVybranaDovolena() const;
+    int GetWorkCount() const;
 
     bool IsVykazanoVPraci() const;
     bool IsVykazanoRegulerne() const;

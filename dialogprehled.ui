@@ -16,6 +16,9 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTreeWidget" name="treeWidget">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
      <column>
       <property name="text">
        <string>Hodiny</string>
@@ -36,6 +39,11 @@
        <string>Přesčas</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string>Hodiny v praci</string>
+      </property>
+     </column>
     </widget>
    </item>
    <item>
@@ -47,6 +55,13 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="butRol">
+       <property name="text">
+        <string>Rozbalit</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">

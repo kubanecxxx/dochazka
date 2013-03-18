@@ -3,6 +3,13 @@
 #include <QDebug>
 #include <QFile>
 #include "dialogprehled.h"
+#include <QPrinter>
+#include <QTextDocument>
+#include <QTextTable>
+#include <QTextTableFormat>
+#include <QPrintDialog>
+#include "widgettoolbar.h"
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -10,15 +17,42 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //jméno
+    tool = new WidgetToolBar(this);
+    ui->toolBar->insertWidget(ui->actionSaveName,tool);
+    connect(ui->actionSaveName,SIGNAL(triggered()),
+            tool,SLOT(SaveDataToFile()));
+    connect(tool,SIGNAL(DovolenaChanged(int)),this,SLOT(on_dovolenaChanged(int)));
+
     year = new ClassYear;
+    year->SetVolnaDovolena(tool->ui->spinDovolena->value());
     PlonkDay = year->GetDay(QDate::currentDate());
     PlonkMonth = year->GetMonth(QDate::currentDate());
-    fillFormDay();
+    fillForm();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::fillForm()
+{
+    setDovolena(PlonkDay->dovolena);
+    fillFormDay(*PlonkDay);
+    LoadCombos(*PlonkDay);
+    fillFormMonth(*PlonkMonth);
+    recolorCalendar(*PlonkMonth,PlonkDay->datum);
+}
+
+void MainWindow::setDovolena(bool enabled)
+{
+    if (enabled)
+        ui->checkDovolena->setText(trUtf8("Ano"));
+    else
+        ui->checkDovolena->setText(trUtf8("Ne"));
+
+    ui->table->setDisabled(enabled);
 }
 
 void MainWindow::fillFormDay(const ClassDay &day)
@@ -70,7 +104,7 @@ void MainWindow::fillFormDay(const ClassDay &day)
         i++;
     }
     AddRow();
-    LoadCombos();
+    //LoadCombos();
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -122,7 +156,7 @@ void MainWindow::on_table_itemChanged(QTableWidgetItem *item)
         prace->prescas = jo;
     }
 
-    LoadCombos();
+    fillForm();
 }
 
 void MainWindow::AddRow()
@@ -182,7 +216,7 @@ void MainWindow::SetTime(const QString &arg, QTime &time,QObject* widget)
 
     pal.setColor(QPalette::Text,col);
     edit->setPalette(pal);
-    LoadCombos();
+    LoadCombos(*PlonkDay);
 }
 
 void MainWindow::on_editPrichod2_textEdited(const QString &arg1)
@@ -210,7 +244,7 @@ void MainWindow::on_calendarWidget_clicked(const QDate &date)
     PlonkDay  = year->GetDay(date);
     PlonkMonth =  year->GetMonth(date);
 
-    fillFormDay();
+    fillForm();
 }
 
 void MainWindow::LoadCombos(const ClassDay &day)
@@ -238,7 +272,7 @@ void MainWindow::LoadCombos(const ClassDay &day)
     ui->editVykazano->setPalette(pal);
     ui->editPrescas->setPalette(pal);
 
-    fillFormMonth();
+    //fillFormMonth();
 }
 
 void MainWindow::fillFormMonth(ClassMonth & month)
@@ -266,19 +300,27 @@ void MainWindow::fillFormMonth(ClassMonth & month)
     ui->editMPVykazano->setPalette(pal);
     ui->editMVpraci->setPalette(pal);
     ui->editMVykazano->setPalette(pal);
+}
 
+void MainWindow::recolorCalendar(ClassMonth &month,QDate ch)
+{
     //kalendář vyplnit správnejma barvama
-    for (int i = 1; i <= QDate::currentDate().day(); i++)
+    for (int i = 1; i <= QDate::currentDate().daysInMonth(); i++)
     {
-        QDate date(PlonkDay->datum.year(),PlonkDay->datum.month(),i);
+        QDate date(ch.year(),ch.month(),i);
         bool bold = !month.GetDay(date)->IsOk();
 
         QTextCharFormat format = ui->calendarWidget->dateTextFormat(date);
         QBrush brush;
-        if (bold)
+        if (i <= QDate::currentDate().day() && bold &&
+                PlonkDay->datum.month() == QDate::currentDate().month())
             brush.setColor(Qt::cyan);
         else
             brush.setColor(Qt::white);
+
+        if (month.GetDay(date)->dovolena)
+            brush.setColor(Qt::yellow);
+
         format.setBackground(brush);
         ui->calendarWidget->setDateTextFormat(date,format);
     }
@@ -286,13 +328,84 @@ void MainWindow::fillFormMonth(ClassMonth & month)
 
 void MainWindow::on_checkDovolena_clicked(bool checked)
 {
-    if (checked)
-        ui->checkDovolena->setText(trUtf8("Ano"));
-    else
-        ui->checkDovolena->setText(trUtf8("Ne"));
-
     PlonkDay->dovolena = checked;
-    ui->table->setDisabled(checked);
+    fillForm();
+}
 
-    fillFormDay();
+
+
+
+#define DEBUG
+
+void MainWindow::on_actionPrint_triggered()
+{
+    QPrinter printer(QPrinter::PrinterResolution);
+#ifndef DEBUG
+    QPrintDialog dialog(&printer, this);
+    //dialog.
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+#else
+    printer.setOutputFileName("./print.ps");
+#endif
+
+    QTextDocument * text = new QTextDocument(this)  ;
+    QTextCursor dc(text);
+
+    dc.insertText(trUtf8("Výkaz práce\n\n"));
+    dc.insertText(QString("%3 %4 \n%1 %2").
+                  arg(PlonkDay->datum.shortMonthName(PlonkDay->datum.month())).
+            arg(PlonkDay->datum.year()).
+            arg(tool->ui->editName->text()).
+                  arg(tool->ui->spinCislo->value()));
+
+    QTextTable * table = dc.insertTable(1,3);
+
+    //hlavička
+    QTextCursor tc;
+    tc = table->cellAt(0,0).firstCursorPosition();
+    tc.insertText(trUtf8("Den"));
+    tc = table->cellAt(0,1).firstCursorPosition();
+    tc.insertText(trUtf8("Hlášení"));
+    tc = table->cellAt(0,2).firstCursorPosition();
+    tc.insertText(trUtf8("Hodiny"));
+
+    foreach (ClassDay * day, PlonkMonth->GetDays()) {
+        printDay(*day,table);
+    }
+
+    QTextTableFormat tab_format = table->format();
+    tab_format.setCellPadding(5);
+    tab_format.setCellSpacing(0);
+    tab_format.setHeaderRowCount(1);
+    tab_format.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
+    tab_format.setBorder(0.5);
+    table->setFrameFormat(tab_format);
+
+    text->print(&printer);
+}
+
+void MainWindow::printDay(const ClassDay &day, QTextTable * table)
+{
+    if(!day.Prichod1.isValid())
+        return;
+
+    QTextCursor tc;
+
+    foreach (ClassDay::prace_t * prace, day.GetPrace()) {
+        int row = table->rows();
+        table->appendRows(1);
+        tc = table->cellAt(row,0).firstCursorPosition();
+        tc.insertText(day.datum.toString(DATEFORMAT));
+        tc = table->cellAt(row,1).firstCursorPosition();
+        tc.insertText(prace->hlaseni);
+        tc = table->cellAt(row,2).firstCursorPosition();
+        tc.insertText(QString("%1").arg(prace->hodiny));
+    }
+}
+
+void MainWindow::on_dovolenaChanged(int value)
+{
+    year->SetVolnaDovolena(value);
+    fillForm();
 }
