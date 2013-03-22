@@ -23,6 +23,7 @@ public:
         QString hlaseni;
         QString Poznamka;
         bool prescas;
+        bool nuceno;
     } prace_t;      //řádek v tabulce
 
     //počet hodiny v práci is přesčasem

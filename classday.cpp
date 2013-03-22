@@ -35,6 +35,8 @@ ClassDay::ClassDay(ClassDay &cpy):
 ClassDay::prace_t * ClassDay::AddPrace()
 {
     prace_t * prac = new prace_t;
+    prac->nuceno = true;
+    prac->prescas = false;
     prace.push_back(prac);
 
     //sobota neděle
@@ -87,6 +89,8 @@ QString ClassDay::GetTextLine() const
         vystup += ESCAPE;
         vystup += QString("%1").arg(prac->prescas);
         vystup += ESCAPE;
+        vystup += QString("%1").arg(prac->nuceno);
+        vystup += ESCAPE;
     }
 
     return vystup;
@@ -118,13 +122,14 @@ void ClassDay::ReadTextLine(const QString &line)
 #define OFFSET 6
     for (int j = 0; j < count; j++)
     {
-        int i = j * 4;
+        int i = j * 5;
         prace_t * prac = new prace_t;
         prace.push_back(prac);
         prac->hodiny = list.at(OFFSET + i).toFloat();
         prac->hlaseni = list.at(OFFSET + 1 + i);
         prac->Poznamka = list.at(OFFSET + 2 + i);
         prac->prescas = list.at(OFFSET + 3 + i).toInt();
+        prac->nuceno = list.at(OFFSET + 4 + i).toInt();
     }
 
     asm("nop");

@@ -99,6 +99,21 @@ void MainWindow::fillFormDay(const ClassDay &day)
         else
             item->setCheckState(Qt::Unchecked);
 
+        //nuceno
+        item = ui->table->item(i,4);
+        if (!item)
+            item = new QTableWidgetItem;
+        if (prac->nuceno)
+        {
+            item->setCheckState(Qt::Checked);
+            item->setText(trUtf8("Nuceno"));
+        }
+        else
+        {
+            item->setCheckState(Qt::Unchecked);
+            item->setText(trUtf8("Dohodnuto"));
+        }
+
         connect(ui->table,SIGNAL(itemChanged(QTableWidgetItem*)),
                    this,SLOT(on_table_itemChanged(QTableWidgetItem*)));
         i++;
@@ -155,6 +170,20 @@ void MainWindow::on_table_itemChanged(QTableWidgetItem *item)
             jo = false;
         prace->prescas = jo;
     }
+    if (ui->table->item(row,4))
+    {
+        bool jo;
+        QString text;
+        if (ui->table->item(row,4)->checkState() == Qt::Checked)
+        {
+            jo = true;
+        }
+        else
+        {
+            jo = false;
+        }
+        prace->nuceno = jo;
+    }
 
     fillForm();
 }
@@ -192,6 +221,13 @@ void MainWindow::AddRow()
         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
     }
     ui->table->setItem(i,3,item);
+
+    //nuceno
+    item = new QTableWidgetItem;
+
+    item->setCheckState(Qt::Checked);
+    item->setText(trUtf8("Nuceno"));
+    ui->table->setItem(i,4,item);
 
     connect(ui->table,SIGNAL(itemChanged(QTableWidgetItem*)),
                this,SLOT(on_table_itemChanged(QTableWidgetItem*)));
@@ -408,4 +444,139 @@ void MainWindow::on_dovolenaChanged(int value)
 {
     year->SetVolnaDovolena(value);
     fillForm();
+}
+
+void MainWindow::on_actionTiskJirasko_triggered()
+{
+    QPrinter printer(QPrinter::PrinterResolution);
+#ifndef DEBUG
+    QPrintDialog dialog(&printer, this);
+    //dialog.
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+#else
+    printer.setOutputFileName("./prescasy.ps");
+#endif
+
+    QTextDocument * text = new QTextDocument(this)  ;
+    QTextCursor dc(text);
+
+
+    QTextCharFormat fmt = dc.charFormat();
+    fmt.setFontUnderline(true);
+    dc.setCharFormat(fmt);
+    dc.insertText(trUtf8("Povolení výkonu práce přesčas"));
+
+    fmt.setFontUnderline(false);
+    dc.setCharFormat(fmt);
+    dc.insertText(QString("\nMěsíc / rok    %1 / %2\n\n").
+                  arg(PlonkDay->datum.month()).
+            arg(PlonkDay->datum.year()));
+
+    QTextTable * table = dc.insertTable(4,4);
+
+    //hlavička
+    QTextCursor tc;
+    tc = table->cellAt(0,0).firstCursorPosition();
+    tc.insertText(trUtf8("Organizační útvar:"));
+    tc = table->cellAt(0,1).firstCursorPosition();
+    tc.insertText(trUtf8("FM"));
+
+    tc = table->cellAt(1,0).firstCursorPosition();
+    tc.insertText(trUtf8("Příjmení a jméno zaměstnance"));
+    tc = table->cellAt(1,1).firstCursorPosition();
+    tc.insertText(tool->ui->editName->text());
+
+    tc = table->cellAt(2,0).firstCursorPosition();
+    tc.insertText(trUtf8("Příjmení a jméno vedoucího \n(řídící úroveň č.4)"));
+    tc = table->cellAt(2,1).firstCursorPosition();
+    tc.insertText(QString("Ing. Jirásko Zdeněk"));
+
+    tc = table->cellAt(0,2).firstCursorPosition();
+    tc.insertText(trUtf8("Středisko"));
+    tc = table->cellAt(0,3).firstCursorPosition();
+    tc.insertText(QString("M190"));
+
+    tc = table->cellAt(1,2).firstCursorPosition();
+    tc.insertText(trUtf8("Osobní číslo"));
+    tc = table->cellAt(1,3).firstCursorPosition();
+    tc.insertText(QString("%1").arg(tool->ui->spinCislo->value()));
+
+    QTextTableFormat tab_format = table->format();
+    tab_format.setCellPadding(5);
+    tab_format.setCellSpacing(0);
+    tab_format.setHeaderRowCount(1);
+    QBrush blackBrush(Qt::SolidPattern);
+    tab_format.setBorderBrush(blackBrush);
+    tab_format.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
+    tab_format.setBorder(0);
+    table->setFrameFormat(tab_format);
+
+    dc.setPosition(table->lastPosition()+1);
+
+    //zbytek
+    table = dc.insertTable(1,5);
+    tab_format = table->format();
+    tab_format.setCellPadding(5);
+    tab_format.setCellSpacing(0);
+    tab_format.setHeaderRowCount(1);
+    tab_format.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
+    tab_format.setBorder(1);
+    table->setFrameFormat(tab_format);
+
+    {
+    QTextCursor tc;
+    tc = table->cellAt(0,0).firstCursorPosition();
+    QTextBlockFormat fmt = tc.blockFormat();
+    //fmt.setAlignment(Qt::AlignVCenter);
+    tc.setBlockFormat(fmt);
+    tc.insertText(trUtf8("Druh \npřesčasové \npráce"));
+
+    tc = table->cellAt(0,1).firstCursorPosition();
+    tc.insertText(trUtf8("Datum \nvýkonu \npřesčasové \npráce"));
+    tc = table->cellAt(0,2).firstCursorPosition();
+    tc.insertText(trUtf8("Počet \nhodin"));
+    tc = table->cellAt(0,3).firstCursorPosition();
+    tc.insertText(trUtf8("Úkoly, na kterých bude zaměstnanec pracovat"));
+    tc = table->cellAt(0,4).firstCursorPosition();
+    tc.insertText(trUtf8("Podpis \nvedoucího"));
+
+    }
+
+    foreach (ClassDay * day, PlonkMonth->GetDays()) {
+        printDayPrescas(*day,table);
+    }
+
+    text->print(&printer);
+}
+
+void MainWindow::printDayPrescas(const ClassDay &day, QTextTable *table)
+{
+    if(!day.Prichod1.isValid())
+        return;
+
+    QTextCursor tc;
+
+    foreach (ClassDay::prace_t * prace, day.GetPrace()) {
+        if (!prace->prescas)
+            continue;
+        int row = table->rows();
+        table->appendRows(1);
+        tc = table->cellAt(row,0).firstCursorPosition();
+        QString text;
+        if (prace->nuceno)
+            text = "N";
+        else
+            text = "D";
+        tc.insertText(text);
+
+        tc = table->cellAt(row,1).firstCursorPosition();
+        tc.insertText(day.datum.toString("dd.MM."));
+
+        tc = table->cellAt(row,2).firstCursorPosition();
+        tc.insertText(QString("%1").arg(prace->hodiny));
+
+        tc = table->cellAt(row,3).firstCursorPosition();
+        tc.insertText(prace->Poznamka);
+    }
 }

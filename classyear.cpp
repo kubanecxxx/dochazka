@@ -6,6 +6,7 @@ ClassYear::ClassYear():
 {
     //načist ze souboru
     file = new QFile("soubor.txt");
+
     LoadFile();
 }
 
@@ -68,7 +69,8 @@ void ClassYear::SaveFile() const
 
 void ClassYear::LoadFile()
 {
-    file->open(QFile::ReadOnly);
+    if (!file->open(QFile::ReadOnly))
+        return;
     mesice.clear();
 
     QByteArray line = file->readLine().trimmed();

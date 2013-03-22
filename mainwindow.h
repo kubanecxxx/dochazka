@@ -34,8 +34,8 @@ private slots:
     void on_calendarWidget_clicked(const QDate &date);
     void on_checkDovolena_clicked(bool checked);
     void on_actionPrint_triggered();
-
     void on_dovolenaChanged(int value);
+    void on_actionTiskJirasko_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -46,6 +46,7 @@ private:
     void setDovolena(bool enabled);
     void AddRow();
     void printDay(const ClassDay & day, QTextTable * table);
+    void printDayPrescas(const ClassDay & day, QTextTable * table);
 
     void fillForm(void);
 

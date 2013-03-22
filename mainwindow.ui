@@ -296,7 +296,7 @@ vykázáno</string>
        <number>0</number>
       </property>
       <property name="columnCount">
-       <number>4</number>
+       <number>5</number>
       </property>
       <column>
        <property name="text">
@@ -316,6 +316,11 @@ vykázáno</string>
       <column>
        <property name="text">
         <string>Přesčas</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Nucený/dohodnutý</string>
        </property>
       </column>
      </widget>
@@ -348,6 +353,7 @@ vykázáno</string>
    </attribute>
    <addaction name="actionSave"/>
    <addaction name="actionPrint"/>
+   <addaction name="actionTiskJirasko"/>
    <addaction name="separator"/>
    <addaction name="actionPrehled"/>
    <addaction name="separator"/>
@@ -378,6 +384,14 @@ vykázáno</string>
   <action name="actionSaveName">
    <property name="text">
     <string>Uložit Jméno...</string>
+   </property>
+  </action>
+  <action name="actionTiskJirasko">
+   <property name="text">
+    <string>TiskJirasko</string>
+   </property>
+   <property name="toolTip">
+    <string>Tisk Jirásko</string>
    </property>
   </action>
  </widget>
