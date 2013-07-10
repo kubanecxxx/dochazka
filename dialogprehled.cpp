@@ -37,7 +37,7 @@ void DialogPrehled::Refresh()
             }
             else
             {
-                date->setData(4,Qt::DisplayRole,day->GetHodinyPrace());
+                date->setData(5,Qt::DisplayRole,day->GetHodinyPrace());
                 //date->setData(2,Qt::DisplayRole,day->Odchod1);
             }
 
@@ -47,12 +47,19 @@ void DialogPrehled::Refresh()
                 work->setFlags(Qt::ItemIsEnabled);
                 date->addChild(work);
                 work->setData(0,Qt::DisplayRole,prace->hodiny);
-                work->setText(1,prace->hlaseni);
-                work->setText(2,prace->Poznamka);
-                if (prace->prescas)
-                    work->setCheckState(3,Qt::Checked);
+
+                if (prace->mx)
+                    work->setText(1,"MX");
                 else
-                    work->setCheckState(3,Qt::Unchecked);
+                    work->setText(1,"MP");
+
+
+                work->setData(2,Qt::DisplayRole,prace->hlaseni);
+                work->setText(3,prace->Poznamka);
+                if (prace->prescas)
+                    work->setCheckState(4,Qt::Checked);
+                else
+                    work->setCheckState(4,Qt::Unchecked);
             }
         }
     }

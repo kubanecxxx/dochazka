@@ -5,6 +5,7 @@
 #include <QDate>
 #include <QFile>
 #include "classday.h"
+#include <QDomElement>
 
 class ClassMonth
 {
@@ -17,7 +18,7 @@ public:
     float GetHoursInWork() const;
     float GetVykazanoHours() const;
     float GetVykazanoPrescas() const;
-    int GetVybranaDovolena() const;
+    int GetVybranaDovolena(int * svatky = NULL) const;
     int GetWorkCount() const;
 
     bool IsVykazanoVPraci() const;
@@ -25,9 +26,12 @@ public:
     QList<ClassDay *> GetDays() const {return days.values();}
 
     ClassDay * GetDay(QDate date);
+    ClassDay * GetDay(int num);
     void RemoveDay(QDate date) {days.remove(date);}
     QString Serialize();
     void Unserialize(QFile * file);
+    void SaveXml(QDomElement * year);
+    void LoadXml(QDomElement * month);
 
 private:
     QMap<QDate,ClassDay *> days;

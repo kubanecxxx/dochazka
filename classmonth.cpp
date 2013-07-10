@@ -16,6 +16,13 @@ ClassMonth::~ClassMonth()
     }
 }
 
+ClassDay * ClassMonth::GetDay(int num)
+{
+    QDate date;
+    date.setDate(datum.year(),datum.month(),num);
+    return GetDay(date);
+}
+
 ClassDay * ClassMonth::GetDay(QDate date)
 {
     ClassDay * day=days.value(date,NULL);
@@ -77,6 +84,44 @@ void ClassMonth::Unserialize(QFile * file)
     }
 }
 
+void ClassMonth::SaveXml(QDomElement * year)
+{
+    QDomDocument doc = year->ownerDocument();
+    QDomElement el = doc.createElement("month");
+    el.setAttribute("number",datum.month());
+
+    int i = 0;
+    QMapIterator<QDate, ClassDay*> it(days);
+    while(it.hasNext())
+    {
+        QDomElement den = doc.createElement("day");
+        it.next();
+        ClassDay * day = it.value();
+        QDate date = it.key();
+        den.setAttribute("number", date.day());
+        if (day->SaveXml(&den))
+            el.appendChild(den);
+    }
+
+    year->appendChild(el);
+}
+
+void ClassMonth::LoadXml(QDomElement *month)
+{
+    QDomElement day = month->firstChildElement("day");
+
+    while (day.isElement())
+    {
+        //do something
+        QString je =  day.attribute("number");
+        ClassDay * den = GetDay(je.toInt());
+        den->LoadXml(&day);
+
+        day = day.nextSiblingElement("day");
+    }
+
+}
+
 float ClassMonth::GetEstimatedHours() const
 {
     //projit celej měsic a zjistit počet pracovnich dnu a vynasobit 7.5
@@ -91,8 +136,9 @@ float ClassMonth::GetEstimatedHours() const
                                 temp.dayOfWeek() % 7 == 0))
             dny++;
     }
-
-    dny -= GetVybranaDovolena();
+    int svatky;
+    dny -= GetVybranaDovolena(&svatky);
+    dny -= svatky;
 
     return dny * 7.5;
 }
@@ -139,16 +185,21 @@ float ClassMonth::GetVykazanoPrescas() const
     return hodiny;
 }
 
-int ClassMonth::GetVybranaDovolena() const
+int ClassMonth::GetVybranaDovolena(int * svatek) const
 {
     QMapIterator<QDate,ClassDay*> it(days);
     int hodiny = 0;
+
+    if (svatek != NULL)
+        *svatek = 0;
 
     while(it.hasNext())
     {
         it.next();
         if (it.value()->dovolena)
             hodiny++;
+        if (svatek && it.value()->svatek)
+            (*svatek)++;
     }
 
     return hodiny;

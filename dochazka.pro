@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui printsupport
+QT       += core gui printsupport xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -30,3 +30,13 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     dialogprehled.ui \
     widgettoolbar.ui
+
+unix:!macx: LIBS += -lxl
+
+win32 {
+ INCLUDEPATH += 3rdParty/include_cpp
+ LIBS += -L$$PWD/3rdParty/32 -llibxl
+}
+
+RESOURCES += \
+    zdroje.qrc

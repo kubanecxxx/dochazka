@@ -37,6 +37,14 @@ private slots:
     void on_dovolenaChanged(int value);
     void on_actionTiskJirasko_triggered();
 
+    void on_editKorekce_textEdited(const QString &arg1);
+
+    void on_editRucne_textEdited(const QString &arg1);
+
+    void on_actionFrankova_triggered();
+
+    void on_checkSvatek_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
 
@@ -44,6 +52,7 @@ private:
     void fillFormMonth(ClassMonth & month);
     void recolorCalendar(ClassMonth & month,QDate date);
     void setDovolena(bool enabled);
+    void setSvatek(bool enabled);
     void AddRow();
     void printDay(const ClassDay & day, QTextTable * table);
     void printDayPrescas(const ClassDay & day, QTextTable * table);

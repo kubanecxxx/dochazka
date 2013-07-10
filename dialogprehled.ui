@@ -26,6 +26,11 @@
      </column>
      <column>
       <property name="text">
+       <string>MX/MP</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
        <string>Hlášení</string>
       </property>
      </column>

@@ -70,59 +70,93 @@
          <item row="3" column="1">
           <widget class="QLineEdit" name="editOdchod2"/>
          </item>
-         <item row="4" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
             <string>V práci</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="6" column="1">
           <widget class="QLineEdit" name="editVpraci">
            <property name="readOnly">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="label_6">
            <property name="text">
             <string>Vykázáno</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="7" column="1">
           <widget class="QLineEdit" name="editVykazano">
            <property name="readOnly">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
+         <item row="8" column="0">
           <widget class="QLabel" name="label_13">
            <property name="text">
             <string>Přesčas</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
+         <item row="8" column="1">
           <widget class="QLineEdit" name="editPrescas">
            <property name="readOnly">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
+         <item row="9" column="1">
           <widget class="QCheckBox" name="checkDovolena">
            <property name="text">
             <string>Ne</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="9" column="0">
           <widget class="QLabel" name="label_14">
            <property name="text">
             <string>Dovolená</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Korekce</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>Ručně</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="editKorekce"/>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="editRucne"/>
+         </item>
+         <item row="10" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Svátek</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="1">
+          <widget class="QCheckBox" name="checkSvatek">
+           <property name="text">
+            <string>Ne</string>
            </property>
           </widget>
          </item>
@@ -296,11 +330,16 @@ vykázáno</string>
        <number>0</number>
       </property>
       <property name="columnCount">
-       <number>5</number>
+       <number>6</number>
       </property>
       <column>
        <property name="text">
         <string>Hodiny</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>MX/MP</string>
        </property>
       </column>
       <column>
@@ -333,7 +372,7 @@ vykázáno</string>
      <x>0</x>
      <y>0</y>
      <width>801</width>
-     <height>23</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>
@@ -354,6 +393,7 @@ vykázáno</string>
    <addaction name="actionSave"/>
    <addaction name="actionPrint"/>
    <addaction name="actionTiskJirasko"/>
+   <addaction name="actionFrankova"/>
    <addaction name="separator"/>
    <addaction name="actionPrehled"/>
    <addaction name="separator"/>
@@ -361,6 +401,10 @@ vykázáno</string>
    <addaction name="separator"/>
   </widget>
   <action name="actionSave">
+   <property name="icon">
+    <iconset resource="zdroje.qrc">
+     <normaloff>:/new/icons/save</normaloff>:/new/icons/save</iconset>
+   </property>
    <property name="text">
     <string>Uložit</string>
    </property>
@@ -374,8 +418,15 @@ vykázáno</string>
    </property>
   </action>
   <action name="actionPrint">
+   <property name="icon">
+    <iconset resource="zdroje.qrc">
+     <normaloff>:/new/icons/print</normaloff>:/new/icons/print</iconset>
+   </property>
    <property name="text">
     <string>Tisk</string>
+   </property>
+   <property name="toolTip">
+    <string>Vytiskne papír pro Frankovou</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
@@ -387,15 +438,52 @@ vykázáno</string>
    </property>
   </action>
   <action name="actionTiskJirasko">
+   <property name="icon">
+    <iconset resource="zdroje.qrc">
+     <normaloff>:/new/icons/J</normaloff>:/new/icons/J</iconset>
+   </property>
    <property name="text">
     <string>TiskJirasko</string>
    </property>
    <property name="toolTip">
-    <string>Tisk Jirásko</string>
+    <string>Vytiskne papír s přesčasama</string>
+   </property>
+  </action>
+  <action name="actionFrankova">
+   <property name="icon">
+    <iconset resource="zdroje.qrc">
+     <normaloff>:/new/icons/F</normaloff>:/new/icons/F</iconset>
+   </property>
+   <property name="text">
+    <string>Franková</string>
+   </property>
+   <property name="toolTip">
+    <string>Vytvoří excel soubor pro Frankovou</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <tabstops>
+  <tabstop>editPrichod1</tabstop>
+  <tabstop>editOdchod1</tabstop>
+  <tabstop>editPrichod2</tabstop>
+  <tabstop>editOdchod2</tabstop>
+  <tabstop>editKorekce</tabstop>
+  <tabstop>editRucne</tabstop>
+  <tabstop>checkDovolena</tabstop>
+  <tabstop>table</tabstop>
+  <tabstop>calendarWidget</tabstop>
+  <tabstop>editVpraci</tabstop>
+  <tabstop>editMVpraci</tabstop>
+  <tabstop>editMVykazano</tabstop>
+  <tabstop>editMPVykazano</tabstop>
+  <tabstop>editMRegul</tabstop>
+  <tabstop>editMDovol</tabstop>
+  <tabstop>editPrescas</tabstop>
+  <tabstop>editVykazano</tabstop>
+ </tabstops>
+ <resources>
+  <include location="zdroje.qrc"/>
+ </resources>
  <connections/>
 </ui>

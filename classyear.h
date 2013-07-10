@@ -13,6 +13,8 @@ public:
     ClassDay * GetDay(QDate date);
     ClassMonth * GetMonth(QDate date) {return GetMonth(date.month());}
     void SaveFile() const;
+    void SaveXml() const;
+    void LoadXml();
     void LoadFile();
     int GetVolnaDovolena() const;
     inline void SetVolnaDovolena(int dov) {volneDovolene = dov;}
@@ -26,6 +28,7 @@ private:
     int volneDovolene;
 
     QFile * file;
+    QFile * xml;
 };
 
 #endif // CLASSYEAR_H

@@ -1,6 +1,8 @@
 #include "widgettoolbar.h"
 #include "ui_widgettoolbar.h"
 #include <QFile>
+#include <QCoreApplication>
+#include <QDir>
 
 WidgetToolBar::WidgetToolBar(QWidget *parent) :
     QWidget(parent),
@@ -20,7 +22,9 @@ WidgetToolBar::~WidgetToolBar()
 
 void WidgetToolBar::SaveDataToFile()
 {
-    QFile fil("jmeno.txt");
+    QString cesta = QFileInfo( QCoreApplication::applicationFilePath() ).absolutePath();
+    cesta += "/jmeno.txt";
+    QFile fil(cesta);
     if (!fil.open(QFile::WriteOnly))
         return;
 
@@ -33,7 +37,9 @@ void WidgetToolBar::SaveDataToFile()
 
 void WidgetToolBar::LoadDataFromFile()
 {
-    QFile fil("jmeno.txt");
+    QString cesta = QFileInfo( QCoreApplication::applicationFilePath() ).absolutePath();
+    cesta += "/jmeno.txt";
+    QFile fil(cesta);
     if (!fil.open(QFile::ReadOnly))
         return;
 

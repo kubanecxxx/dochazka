@@ -4,6 +4,7 @@
 #include <QString>
 #include <QTime>
 #include <QList>
+#include <QDomElement>
 
 #define TIMEFORMAT "h:mm"
 #define DATEFORMAT "dd.MM.yyyy"
@@ -17,14 +18,23 @@ public:
     ~ClassDay();
     ClassDay(ClassDay & cpy);
 
-    typedef struct
+    struct prace_t
     {
         float hodiny;
-        QString hlaseni;
+        int hlaseni;
         QString Poznamka;
         bool prescas;
         bool nuceno;
-    } prace_t;      //řádek v tabulce
+        bool mx;
+        bool operator==(const prace_t & other)
+        {
+            bool same;
+            same = ((hlaseni == other.hlaseni) && (mx == other.mx));
+            return same;
+        }
+    };      //řádek v tabulce
+
+    typedef prace_t prace_t;
 
     //počet hodiny v práci is přesčasem
     float GetHodinyPrace() const;
@@ -40,6 +50,8 @@ public:
 
     QTime Prichod1, Prichod2;
     QTime Odchod1, Odchod2;
+    QTime Rucne;
+    float Korekce;
 
     prace_t * AddPrace();
     inline void DelPrace(int i) {prace.removeAt(i);}
@@ -51,6 +63,11 @@ public:
     const QDate datum;
 
     bool dovolena;
+    bool SaveXml(QDomElement * el);
+    void LoadXml(QDomElement * el);
+    bool svatek;
+
+    static bool praceValid(const prace_t * prac);
 
 private:
     QList<prace_t*> prace;

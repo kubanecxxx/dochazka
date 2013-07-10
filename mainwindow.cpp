@@ -9,7 +9,15 @@
 #include <QTextTableFormat>
 #include <QPrintDialog>
 #include "widgettoolbar.h"
+#include <libxl.h>
+#include <QFileDialog>
 
+#define T_HODINY 0
+#define T_MX 1
+#define T_HLASENI 2
+#define T_POZN 3
+#define T_PRESCAS 4
+#define T_NUCENO 5
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -38,11 +46,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::fillForm()
 {
+    setSvatek(PlonkDay->svatek);
     setDovolena(PlonkDay->dovolena);
     fillFormDay(*PlonkDay);
     LoadCombos(*PlonkDay);
     fillFormMonth(*PlonkMonth);
     recolorCalendar(*PlonkMonth,PlonkDay->datum);
+
+    if (PlonkDay->svatek || PlonkDay->dovolena)
+        ui->table->setDisabled(true);
 }
 
 void MainWindow::setDovolena(bool enabled)
@@ -52,7 +64,19 @@ void MainWindow::setDovolena(bool enabled)
     else
         ui->checkDovolena->setText(trUtf8("Ne"));
 
+    ui->checkDovolena->setChecked(enabled);
     ui->table->setDisabled(enabled);
+}
+
+void MainWindow::setSvatek(bool enabled)
+{
+    if (enabled)
+        ui->checkSvatek->setText(trUtf8("Ano"));
+    else
+        ui->checkSvatek->setText(trUtf8("Ne"));
+
+    ui->table->setDisabled(enabled);
+    ui->checkSvatek->setChecked(enabled);
 }
 
 void MainWindow::fillFormDay(const ClassDay &day)
@@ -61,6 +85,7 @@ void MainWindow::fillFormDay(const ClassDay &day)
     ui->editPrichod2->setText(day.Prichod2.toString(TIMEFORMAT));
     ui->editOdchod1->setText(day.Odchod1.toString(TIMEFORMAT));
     ui->editOdchod2->setText(day.Odchod2.toString(TIMEFORMAT));
+    ui->editRucne->setText(day.Rucne.toString(TIMEFORMAT));
 
     //vyplnit hodiny vykázany a vpráci
 
@@ -76,22 +101,22 @@ void MainWindow::fillFormDay(const ClassDay &day)
         disconnect(ui->table,SIGNAL(itemChanged(QTableWidgetItem*)),
                    this,SLOT(on_table_itemChanged(QTableWidgetItem*)));
         //hodiny
-        item = ui->table->item(i,0);
+        item = ui->table->item(i,T_HODINY);
         item->setData(Qt::DisplayRole,prac->hodiny);
 
         //mx
-        item = ui->table->item(i,1);
-        item->setText(prac->hlaseni);
-        ui->table->setItem(i,1,item);
+        item = ui->table->item(i,T_HLASENI);
+        item->setData(Qt::DisplayRole,prac->hlaseni);
+        ui->table->setItem(i,T_HLASENI,item);
 
         //poznamka
-        item = ui->table->item(i,2);
+        item = ui->table->item(i,T_POZN);
         if (!item)
             item = new QTableWidgetItem;
         item->setText(prac->Poznamka);
 
         //prescas
-        item = ui->table->item(i,3);
+        item = ui->table->item(i,T_PRESCAS);
         if (!item)
             item = new QTableWidgetItem;
         if (prac->prescas)
@@ -100,7 +125,7 @@ void MainWindow::fillFormDay(const ClassDay &day)
             item->setCheckState(Qt::Unchecked);
 
         //nuceno
-        item = ui->table->item(i,4);
+        item = ui->table->item(i,T_NUCENO);
         if (!item)
             item = new QTableWidgetItem;
         if (prac->nuceno)
@@ -114,6 +139,21 @@ void MainWindow::fillFormDay(const ClassDay &day)
             item->setText(trUtf8("Dohodnuto"));
         }
 
+        //mx/mp
+        item = ui->table->item(i,T_MX);
+        if(!item)
+            item = new QTableWidgetItem;
+        if(prac->mx)
+        {
+            item->setCheckState(Qt::Checked);
+            item->setText("MX");
+        }
+        else
+        {
+            item->setCheckState(Qt::Unchecked);
+            item->setText("MP");
+        }
+
         connect(ui->table,SIGNAL(itemChanged(QTableWidgetItem*)),
                    this,SLOT(on_table_itemChanged(QTableWidgetItem*)));
         i++;
@@ -124,7 +164,8 @@ void MainWindow::fillFormDay(const ClassDay &day)
 
 void MainWindow::on_actionSave_triggered()
 {
-    year->SaveFile();
+    year->SaveXml();
+    //year->SaveFile();
 }
 
 void MainWindow::on_actionPrehled_triggered()
@@ -155,26 +196,25 @@ void MainWindow::on_table_itemChanged(QTableWidgetItem *item)
         prace = PlonkDay->AddPrace();
     }
 
-    if (ui->table->item(row,0))
-        prace->hodiny = ui->table->item(row,0)->data(Qt::DisplayRole).toFloat();
-    if (ui->table->item(row,1))
-        prace->hlaseni = ui->table->item(row,1)->text();
-    if (ui->table->item(row,2))
-        prace->Poznamka = ui->table->item(row,2)->text();
-    if (ui->table->item(row,3))
+    if (ui->table->item(row,T_HODINY) )
+        prace->hodiny = ui->table->item(row,T_HODINY)->data(Qt::DisplayRole).toFloat();
+    if (ui->table->item(row,T_HLASENI))
+        prace->hlaseni = ui->table->item(row,T_HLASENI)->data(Qt::DisplayRole).toInt();
+    if (ui->table->item(row,T_POZN))
+        prace->Poznamka = ui->table->item(row,T_POZN)->text().trimmed();
+    if (ui->table->item(row,T_PRESCAS))
     {
         bool jo;
-        if (ui->table->item(row,3)->checkState() == Qt::Checked)
+        if (ui->table->item(row,T_PRESCAS)->checkState() == Qt::Checked)
             jo = true;
         else
             jo = false;
         prace->prescas = jo;
     }
-    if (ui->table->item(row,4))
+    if (ui->table->item(row,T_NUCENO))
     {
         bool jo;
-        QString text;
-        if (ui->table->item(row,4)->checkState() == Qt::Checked)
+        if (ui->table->item(row,T_NUCENO)->checkState() == Qt::Checked)
         {
             jo = true;
         }
@@ -183,6 +223,19 @@ void MainWindow::on_table_itemChanged(QTableWidgetItem *item)
             jo = false;
         }
         prace->nuceno = jo;
+    }
+    if (ui->table->item(row,T_MX))
+    {
+        bool jo;
+        if (ui->table->item(row,T_MX)->checkState() == Qt::Checked)
+        {
+            jo = true;
+        }
+        else
+        {
+            jo = false;
+        }
+        prace->mx = jo;
     }
 
     fillForm();
@@ -199,15 +252,21 @@ void MainWindow::AddRow()
 
     //hodiny
     item = new QTableWidgetItem;
-    ui->table->setItem(i,0,item);
+    ui->table->setItem(i,T_HODINY,item);
 
     //mpú
     item = new QTableWidgetItem;
-    ui->table->setItem(i,1,item);
+    ui->table->setItem(i,T_HLASENI,item);
 
     //poznamka
     item = new QTableWidgetItem;
-    ui->table->setItem(i,2,item);
+    ui->table->setItem(i,T_POZN,item);
+
+    //mx/mp
+    item = new QTableWidgetItem;
+    ui->table->setItem(i,T_MX,item);
+    item->setCheckState(Qt::Unchecked);
+    item->setText("MX");
 
     //prescas
     item = new QTableWidgetItem;
@@ -220,14 +279,16 @@ void MainWindow::AddRow()
         item->setCheckState(Qt::Checked);
         item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
     }
-    ui->table->setItem(i,3,item);
+    ui->table->setItem(i,T_PRESCAS,item);
 
     //nuceno
     item = new QTableWidgetItem;
 
     item->setCheckState(Qt::Checked);
     item->setText(trUtf8("Nuceno"));
-    ui->table->setItem(i,4,item);
+    ui->table->setItem(i,T_NUCENO,item);
+
+
 
     connect(ui->table,SIGNAL(itemChanged(QTableWidgetItem*)),
                this,SLOT(on_table_itemChanged(QTableWidgetItem*)));
@@ -253,6 +314,7 @@ void MainWindow::SetTime(const QString &arg, QTime &time,QObject* widget)
     pal.setColor(QPalette::Text,col);
     edit->setPalette(pal);
     LoadCombos(*PlonkDay);
+    fillFormMonth(*PlonkMonth);
 }
 
 void MainWindow::on_editPrichod2_textEdited(const QString &arg1)
@@ -368,15 +430,10 @@ void MainWindow::on_checkDovolena_clicked(bool checked)
     fillForm();
 }
 
-
-
-
-#define DEBUG
-
 void MainWindow::on_actionPrint_triggered()
 {
     QPrinter printer(QPrinter::PrinterResolution);
-#ifndef DEBUG
+#ifndef QT_DEBUG
     QPrintDialog dialog(&printer, this);
     //dialog.
     if (dialog.exec() != QDialog::Accepted)
@@ -434,7 +491,12 @@ void MainWindow::printDay(const ClassDay &day, QTextTable * table)
         tc = table->cellAt(row,0).firstCursorPosition();
         tc.insertText(day.datum.toString(DATEFORMAT));
         tc = table->cellAt(row,1).firstCursorPosition();
-        tc.insertText(prace->hlaseni);
+        QString mx;
+        if (prace->mx)
+            mx = "MX ";
+        else
+            mx = "MP";
+        tc.insertText(QString("%2%1").arg(prace->hlaseni).arg(mx));
         tc = table->cellAt(row,2).firstCursorPosition();
         tc.insertText(QString("%1").arg(prace->hodiny));
     }
@@ -449,7 +511,7 @@ void MainWindow::on_dovolenaChanged(int value)
 void MainWindow::on_actionTiskJirasko_triggered()
 {
     QPrinter printer(QPrinter::PrinterResolution);
-#ifndef DEBUG
+#ifndef QT_DEBUG
     QPrintDialog dialog(&printer, this);
     //dialog.
     if (dialog.exec() != QDialog::Accepted)
@@ -469,7 +531,7 @@ void MainWindow::on_actionTiskJirasko_triggered()
 
     fmt.setFontUnderline(false);
     dc.setCharFormat(fmt);
-    dc.insertText(QString("\nMěsíc / rok    %1 / %2\n\n").
+    dc.insertText(QString("\nMěsíc / rok      %1 / %2\n\n").
                   arg(PlonkDay->datum.month()).
             arg(PlonkDay->datum.year()));
 
@@ -521,7 +583,7 @@ void MainWindow::on_actionTiskJirasko_triggered()
     tab_format.setCellSpacing(0);
     tab_format.setHeaderRowCount(1);
     tab_format.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
-    tab_format.setBorder(1);
+    tab_format.setBorder(0.5);
     table->setFrameFormat(tab_format);
 
     {
@@ -579,4 +641,114 @@ void MainWindow::printDayPrescas(const ClassDay &day, QTextTable *table)
         tc = table->cellAt(row,3).firstCursorPosition();
         tc.insertText(prace->Poznamka);
     }
+}
+
+void MainWindow::on_editKorekce_textEdited(const QString &arg1)
+{
+    bool ok;
+    float co;
+    co = arg1.toFloat(&ok);
+    if (arg1.isEmpty())
+    {
+        co = 0;
+        ok = true;
+    }
+
+    QLineEdit * edit = qobject_cast<QLineEdit*>(sender());
+
+    QPalette pal;
+    QColor col;
+
+    if (ok)
+    {
+        col = Qt::black;
+        PlonkDay->Korekce = co;
+    }
+    else
+    {
+        col = Qt::red;
+    }
+
+    pal.setColor(QPalette::Text,col);
+    edit->setPalette(pal);
+    fillForm();
+}
+
+void MainWindow::on_editRucne_textEdited(const QString &arg1)
+{
+    SetTime(arg1,PlonkDay->Rucne,sender());
+}
+
+using namespace libxl;
+
+#ifdef __unix
+#define OFFSET 1
+#else
+#define OFFSET 0
+#endif
+
+void MainWindow::on_actionFrankova_triggered()
+{
+    Book * book = xlCreateBook();
+    Sheet * sheet = book->addSheet("Formulář hlášení");
+
+    //hlavička
+    sheet->writeStr(OFFSET,0,"Číslo hlášení");
+    sheet->writeStr(OFFSET,1,"Osobní číslo");
+    sheet->writeStr(OFFSET,2,"Odpracovaný čas");
+
+    int i = OFFSET + 1;
+
+    //musim projit všechny práce co existujou a sečist jejich hodiny pokud je nějaká práce stejná
+    QList<ClassDay::prace_t> vse;
+    foreach (ClassDay * day, PlonkMonth->GetDays())
+    {
+        foreach(ClassDay::prace_t * prace, day->GetPrace())
+        {
+            if (ClassDay::praceValid(prace))
+            {
+                vse.push_back(*prace);
+            }
+        }
+    }
+
+    //protřidit porovnat každou práci s každou
+    for (int i = 0 ; i < vse.count(); i++)
+    {
+        for (int j = 0 ; j< vse.count(); j++)
+        {
+            if (vse[i] == vse[j] && i != j)
+            {
+                ClassDay::prace_t pr = vse.takeAt(j);
+                vse[i].hodiny += pr.hodiny;
+                j--;
+            }
+        }
+    }
+
+    //vytisknout
+    foreach(ClassDay::prace_t pr,vse)
+    {
+        ClassDay::prace_t * prace = &pr;
+        sheet->writeNum(i,0,prace->hlaseni);
+        sheet->writeNum(i,1,tool->ui->spinCislo->value());
+        sheet->writeNum(i,2,prace->hodiny);
+        i++;
+    }
+
+    QString file = QFileDialog::getSaveFileName(this,trUtf8("Uložit"),QString(),QString("*.xls"));
+    if (file.isEmpty())
+        return;
+
+    if (!file.endsWith(".xls"))
+        file.append(".xls");
+    char jo[200];
+    strcpy(jo,file.toUtf8().data());
+    book->save(jo);
+}
+
+void MainWindow::on_checkSvatek_clicked(bool checked)
+{
+    PlonkDay->svatek = checked;
+    fillForm();
 }

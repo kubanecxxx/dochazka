@@ -4,7 +4,9 @@
 
 ClassDay::ClassDay(const QDate & date):
     datum(date),
-    dovolena(false)
+    dovolena(false),
+    Korekce(0),
+    svatek(false)
 {
 
 }
@@ -37,6 +39,7 @@ ClassDay::prace_t * ClassDay::AddPrace()
     prace_t * prac = new prace_t;
     prac->nuceno = true;
     prac->prescas = false;
+    prac->mx = true;
     prace.push_back(prac);
 
     //sobota neděle
@@ -76,6 +79,12 @@ QString ClassDay::GetTextLine() const
     vystup += QString("%1").arg(dovolena);
     vystup += ESCAPE;
 
+    vystup += QString("%1").arg(Korekce);
+    vystup += ESCAPE;
+    vystup += Rucne.toString(TIMEFORMAT);
+    vystup += ESCAPE;
+
+
     vystup += QString("%1").arg(prace.count());
     vystup += ESCAPE;
 
@@ -93,7 +102,92 @@ QString ClassDay::GetTextLine() const
         vystup += ESCAPE;
     }
 
-    return vystup;
+    return vystup.trimmed();
+}
+
+bool  ClassDay::SaveXml(QDomElement *el)
+{
+    QDomDocument doc = el->ownerDocument();
+
+    if (!Prichod1.isValid() && !dovolena  && !svatek)
+    {
+        if (!prace.count())
+            return false;
+
+        prace_t * prac = prace.at(0);
+        if (!praceValid(prac))
+            return false;
+    }
+
+    el->setAttribute("prichod1",Prichod1.toString(TIMEFORMAT));
+    el->setAttribute("prichod2",Prichod2.toString(TIMEFORMAT));
+    el->setAttribute("odchod1", Odchod1.toString(TIMEFORMAT));
+    el->setAttribute("odchod2",Odchod2.toString(TIMEFORMAT));
+    el->setAttribute("dovolena",dovolena);
+    el->setAttribute("korekce" , Korekce);
+    el->setAttribute("svatek",svatek);
+    el->setAttribute("rucne",Rucne.toString(TIMEFORMAT));
+    //el->setAttribute("pocetPraci",prace.count());
+
+    foreach(prace_t * prac, prace)
+    {
+        if (!praceValid(prac))
+            continue;
+
+        QDomElement prace = doc.createElement("prace");
+        QDomNode node = doc.createTextNode(prac->Poznamka);
+        prace.setAttribute("hodiny",prac->hodiny);
+        prace.setAttribute("hlaseni",prac->hlaseni);
+        prace.setAttribute("prescas",prac->prescas);
+        prace.setAttribute("nuceno",prac->nuceno);
+        prace.setAttribute("mx",prac->mx);
+        prace.appendChild(node);
+
+        el->appendChild(prace);
+    }
+
+    return true;
+}
+
+bool ClassDay::praceValid(const prace_t *prac)
+{
+    bool ok = true;
+
+    if (prac->hodiny == 0 && prac->hlaseni == 0 && prac->Poznamka.isEmpty())
+        ok = false;
+
+
+    return ok;
+}
+
+void ClassDay::LoadXml(QDomElement *el)
+{
+    Prichod1 = QTime::fromString(el->attribute("prichod1"),TIMEFORMAT);
+    Prichod2 = QTime::fromString(el->attribute("prichod2"),TIMEFORMAT);
+    Odchod1 = QTime::fromString(el->attribute("odchod1"),TIMEFORMAT);
+    Odchod2 = QTime::fromString(el->attribute("odchod2"),TIMEFORMAT);
+    Rucne =   QTime::fromString(el->attribute("rucne"),TIMEFORMAT);
+
+    dovolena = el->attribute("dovolena").toInt();
+    Korekce = el->attribute("korekce").toInt();
+    svatek = el->attribute("svatek").toInt();
+
+    QDomElement prace = el->firstChildElement("prace");
+
+    while (prace.isElement())
+    {
+        //do something
+        prace_t * prac = AddPrace();
+        prac->hodiny = prace.attribute("hodiny").toDouble();
+        prac->hlaseni = prace.attribute("hlaseni").toInt();
+        prac->prescas = prace.attribute("prescas").toInt();
+        prac->nuceno = prace.attribute("nuceno").toInt();
+        prac->Poznamka = (prace.firstChild().toText().data());
+        prac->mx = prace.attribute("mx").toInt();
+
+        prace = prace.nextSiblingElement("prace");
+    }
+
 }
 
 void ClassDay::ReadTextLine(const QString &line)
@@ -117,16 +211,18 @@ void ClassDay::ReadTextLine(const QString &line)
     Prichod2 = QTime::fromString(list.at(2),TIMEFORMAT);
     Odchod2 = QTime::fromString(list.at(3),TIMEFORMAT);
     dovolena = list.at(4).toInt();
+    Korekce = list.at(5).toFloat();
+    Rucne = QTime::fromString(list.at(6),TIMEFORMAT);
 
-    int count = list.at(5).toInt();
-#define OFFSET 6
+    int count = list.at(7).toInt();
+#define OFFSET 8
     for (int j = 0; j < count; j++)
     {
         int i = j * 5;
         prace_t * prac = new prace_t;
         prace.push_back(prac);
         prac->hodiny = list.at(OFFSET + i).toFloat();
-        prac->hlaseni = list.at(OFFSET + 1 + i);
+        prac->hlaseni = list.at(OFFSET + 1 + i).toInt();
         prac->Poznamka = list.at(OFFSET + 2 + i);
         prac->prescas = list.at(OFFSET + 3 + i).toInt();
         prac->nuceno = list.at(OFFSET + 4 + i).toInt();
@@ -138,8 +234,12 @@ void ClassDay::ReadTextLine(const QString &line)
 float ClassDay::GetHodinyPrace() const
 {
     QTime sest = QTime::fromString("6:00",TIMEFORMAT);
-    QTime obed1 = QTime::fromString("11:30",TIMEFORMAT);
-    QTime obed2 = QTime::fromString("12:00",TIMEFORMAT);
+    const QTime obed1 = QTime::fromString("12:30",TIMEFORMAT);
+    const QTime obed2 = QTime::fromString("13:00",TIMEFORMAT);
+    const QTime vecere1 = QTime::fromString("18:00",TIMEFORMAT);
+    const QTime vecere2 = QTime::fromString("18:30",TIMEFORMAT);
+    const QTime nocni1 = QTime::fromString("2:00",TIMEFORMAT);
+    const QTime nocni2 = QTime::fromString("2:30",TIMEFORMAT);
     int sec1;
     int sec2;
 
@@ -159,6 +259,13 @@ float ClassDay::GetHodinyPrace() const
     if (Prichod1 <= obed1 && Odchod1 >= obed2)
         sec1 -= 1800;
 
+    if (Prichod1 <= vecere1 && Odchod1 >= vecere2)
+        sec1 -= 1800;
+
+    if (Prichod1 <= nocni1 && Odchod1 >= nocni2)
+        sec1 -= 1800;
+
+
     sec1 = floor(sec1/1800.0) * 1800;
 
     if (Prichod2 > Odchod1)
@@ -171,7 +278,9 @@ float ClassDay::GetHodinyPrace() const
         sec2 = 0;
     }
 
-    float cas = (sec1 + sec2) / 3600.0;
+    float cas = (sec1 + sec2);
+    cas /= 3600.0;
+    cas += (Korekce);
 
     return cas;
 }
@@ -193,11 +302,20 @@ float ClassDay::GetHodinyVykazano() const
 
 bool ClassDay::IsOk() const
 {
+    bool rucne = true;
+
+    if (Rucne.isValid())
+    {
+        float time = GetHodinyPrace();
+        float time2 = (float) (Rucne.hour() + Rucne.minute() / 60.0);
+        rucne = (time  == time2);
+    }
+
     if(IsNotWeekend())
         return ((GetHodinyPrace() == (GetHodinyVykazano() + GetHodinyPrescasVykazano())
-                && Prichod1.isValid()) || dovolena);
+                && Prichod1.isValid() && rucne)  || dovolena || svatek);
     else
-        return ((GetHodinyPrace() == (GetHodinyVykazano() + GetHodinyPrescasVykazano())));
+        return ((GetHodinyPrace() == (GetHodinyVykazano() + GetHodinyPrescasVykazano())) && rucne);
 }
 
 float ClassDay::GetHodinyPrescasVykazano() const
