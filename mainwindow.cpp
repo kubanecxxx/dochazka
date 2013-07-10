@@ -86,6 +86,7 @@ void MainWindow::fillFormDay(const ClassDay &day)
     ui->editOdchod1->setText(day.Odchod1.toString(TIMEFORMAT));
     ui->editOdchod2->setText(day.Odchod2.toString(TIMEFORMAT));
     ui->editRucne->setText(day.Rucne.toString(TIMEFORMAT));
+    ui->editKorekce->setText(QString::number((double)day.Korekce));
 
     //vyplnit hodiny vykázany a vpráci
 
@@ -439,7 +440,7 @@ void MainWindow::on_actionPrint_triggered()
     if (dialog.exec() != QDialog::Accepted)
         return;
 #else
-    printer.setOutputFileName("./print.ps");
+    printer.setOutputFileName("./print.pdf");
 #endif
 
     QTextDocument * text = new QTextDocument(this)  ;
@@ -495,7 +496,7 @@ void MainWindow::printDay(const ClassDay &day, QTextTable * table)
         if (prace->mx)
             mx = "MX ";
         else
-            mx = "MP";
+            mx = "MP ";
         tc.insertText(QString("%2%1").arg(prace->hlaseni).arg(mx));
         tc = table->cellAt(row,2).firstCursorPosition();
         tc.insertText(QString("%1").arg(prace->hodiny));
@@ -531,7 +532,7 @@ void MainWindow::on_actionTiskJirasko_triggered()
 
     fmt.setFontUnderline(false);
     dc.setCharFormat(fmt);
-    dc.insertText(QString("\nMěsíc / rok      %1 / %2\n\n").
+    dc.insertText(trUtf8("\nMěsíc")+QString(" / rok      %1 / %2\n\n").
                   arg(PlonkDay->datum.month()).
             arg(PlonkDay->datum.year()));
 
@@ -552,7 +553,7 @@ void MainWindow::on_actionTiskJirasko_triggered()
     tc = table->cellAt(2,0).firstCursorPosition();
     tc.insertText(trUtf8("Příjmení a jméno vedoucího \n(řídící úroveň č.4)"));
     tc = table->cellAt(2,1).firstCursorPosition();
-    tc.insertText(QString("Ing. Jirásko Zdeněk"));
+    tc.insertText(trUtf8("Ing. Jirásko Zdeněk"));
 
     tc = table->cellAt(0,2).firstCursorPosition();
     tc.insertText(trUtf8("Středisko"));
@@ -609,6 +610,9 @@ void MainWindow::on_actionTiskJirasko_triggered()
         printDayPrescas(*day,table);
     }
 
+    dc.setPosition(table->lastPosition()+ 1);
+    dc.insertText(trUtf8("\nVšechny výše uvedené přesčasové hodiny požaduji proplatit"));
+
     text->print(&printer);
 }
 
@@ -647,7 +651,13 @@ void MainWindow::on_editKorekce_textEdited(const QString &arg1)
 {
     bool ok;
     float co;
+
+    if (arg1.endsWith(".") || arg1.endsWith(","))
+        return;
+
     co = arg1.toFloat(&ok);
+
+
     if (arg1.isEmpty())
     {
         co = 0;
@@ -663,6 +673,7 @@ void MainWindow::on_editKorekce_textEdited(const QString &arg1)
     {
         col = Qt::black;
         PlonkDay->Korekce = co;
+        fillForm();
     }
     else
     {
@@ -671,7 +682,7 @@ void MainWindow::on_editKorekce_textEdited(const QString &arg1)
 
     pal.setColor(QPalette::Text,col);
     edit->setPalette(pal);
-    fillForm();
+    //fillForm();
 }
 
 void MainWindow::on_editRucne_textEdited(const QString &arg1)
@@ -684,7 +695,7 @@ using namespace libxl;
 #ifdef __unix
 #define OFFSET 1
 #else
-#define OFFSET 0
+#define OFFSET 1
 #endif
 
 void MainWindow::on_actionFrankova_triggered()
