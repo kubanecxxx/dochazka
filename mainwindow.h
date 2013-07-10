@@ -45,6 +45,10 @@ private slots:
 
     void on_checkSvatek_clicked(bool checked);
 
+    void on_spinKorekce_editingFinished();
+
+    void on_spinKorekce_valueChanged(double arg1);
+
 private:
     Ui::MainWindow *ui;
 

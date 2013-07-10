@@ -140,9 +140,6 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QLineEdit" name="editKorekce"/>
-         </item>
          <item row="5" column="1">
           <widget class="QLineEdit" name="editRucne"/>
          </item>
@@ -157,6 +154,28 @@
           <widget class="QCheckBox" name="checkSvatek">
            <property name="text">
             <string>Ne</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QDoubleSpinBox" name="spinKorekce">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="minimum">
+            <double>-100.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>100.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.500000000000000</double>
            </property>
           </widget>
          </item>
@@ -468,7 +487,6 @@ vykázáno</string>
   <tabstop>editOdchod1</tabstop>
   <tabstop>editPrichod2</tabstop>
   <tabstop>editOdchod2</tabstop>
-  <tabstop>editKorekce</tabstop>
   <tabstop>editRucne</tabstop>
   <tabstop>checkDovolena</tabstop>
   <tabstop>table</tabstop>

@@ -86,7 +86,8 @@ void MainWindow::fillFormDay(const ClassDay &day)
     ui->editOdchod1->setText(day.Odchod1.toString(TIMEFORMAT));
     ui->editOdchod2->setText(day.Odchod2.toString(TIMEFORMAT));
     ui->editRucne->setText(day.Rucne.toString(TIMEFORMAT));
-    ui->editKorekce->setText(QString::number((double)day.Korekce));
+    //ui->editKorekce->setText(QString::number((double)day.Korekce));
+    ui->spinKorekce->setValue(day.Korekce);
 
     //vyplnit hodiny vykázany a vpráci
 
@@ -761,5 +762,17 @@ void MainWindow::on_actionFrankova_triggered()
 void MainWindow::on_checkSvatek_clicked(bool checked)
 {
     PlonkDay->svatek = checked;
+    fillForm();
+}
+
+void MainWindow::on_spinKorekce_editingFinished()
+{
+   // PlonkDay->Korekce = ui->spinKorekce->value();
+   // fillForm();
+}
+
+void MainWindow::on_spinKorekce_valueChanged(double arg1)
+{
+    PlonkDay->Korekce = arg1;
     fillForm();
 }

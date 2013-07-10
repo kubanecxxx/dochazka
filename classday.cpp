@@ -169,7 +169,7 @@ void ClassDay::LoadXml(QDomElement *el)
     Rucne =   QTime::fromString(el->attribute("rucne"),TIMEFORMAT);
 
     dovolena = el->attribute("dovolena").toInt();
-    Korekce = el->attribute("korekce").toInt();
+    Korekce = el->attribute("korekce").toDouble();
     svatek = el->attribute("svatek").toInt();
 
     QDomElement prace = el->firstChildElement("prace");
