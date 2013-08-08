@@ -20,6 +20,7 @@ DialogPrehled::~DialogPrehled()
 void DialogPrehled::Refresh()
 {
     //vytvořit stroma
+
     QTreeWidgetItem *date, *work;
 
     QList<ClassDay *> days = month.GetDays();

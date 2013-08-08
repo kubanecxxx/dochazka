@@ -6,6 +6,7 @@
 #include "classmonth.h"
 #include "classyear.h"
 #include "widgettoolbar.h"
+#include "libxl.h"
 
 namespace Ui {
 class MainWindow;
@@ -48,6 +49,7 @@ private slots:
     void on_spinKorekce_editingFinished();
 
     void on_spinKorekce_valueChanged(double arg1);
+    void on_prehledDialogFinished(int);
 
 private:
     Ui::MainWindow *ui;
@@ -60,6 +62,7 @@ private:
     void AddRow();
     void printDay(const ClassDay & day, QTextTable * table);
     void printDayPrescas(const ClassDay & day, QTextTable * table);
+    void printDayPrescasXls(const ClassDay & day, int & line, libxl::Sheet * sheet);
 
     void fillForm(void);
 
@@ -71,6 +74,7 @@ private:
     void LoadCombos(const ClassDay & day);
 
     WidgetToolBar * tool;
+    void closeEvent(QCloseEvent *evt);
 };
 
 #endif // MAINWINDOW_H

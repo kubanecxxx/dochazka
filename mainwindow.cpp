@@ -11,6 +11,8 @@
 #include "widgettoolbar.h"
 #include <libxl.h>
 #include <QFileDialog>
+#include <QTimer>
+#include <QCloseEvent>
 
 #define T_HODINY 0
 #define T_MX 1
@@ -166,14 +168,27 @@ void MainWindow::fillFormDay(const ClassDay &day)
 
 void MainWindow::on_actionSave_triggered()
 {
+    statusBar()->showMessage(trUtf8("Změny uloženy"),2000);
     year->SaveXml();
     //year->SaveFile();
 }
 
 void MainWindow::on_actionPrehled_triggered()
 {
-    DialogPrehled dlg(*PlonkMonth,this);
-    dlg.exec();
+    DialogPrehled * dlg =new DialogPrehled(*PlonkMonth,this);
+    connect(dlg,SIGNAL(finished(int)),this,SLOT(on_prehledDialogFinished(int)));
+    dlg->show();
+}
+
+void MainWindow::on_prehledDialogFinished(int)
+{
+    sender()->deleteLater();
+}
+
+void MainWindow::closeEvent(QCloseEvent *evt)
+{
+    on_actionSave_triggered();
+    QMainWindow::closeEvent(evt);
 }
 
 void MainWindow::on_table_itemChanged(QTableWidgetItem *item)
@@ -510,8 +525,46 @@ void MainWindow::on_dovolenaChanged(int value)
     fillForm();
 }
 
+using namespace libxl;
+
+#define MAKRO(x) trUtf8(x).toLocal8Bit().constData()
+#define MAK() toLocal8Bit().constData()
+
 void MainWindow::on_actionTiskJirasko_triggered()
 {
+    QString name = "moje.xls";
+#ifndef QT_DEBUG
+    //dialog s novym...
+    QString pre = QString("Prescasy_%1_%2.xls").arg(tool->ui->editName->text()).arg(PlonkDay->datum.month());
+    QString file = QFileDialog::getSaveFileName(this,trUtf8("Uložit"),pre,QString("*.xls"));
+    if (file.isEmpty())
+        return;
+
+    name = file;
+#endif
+    Book * book = xlCreateBook();
+    book->load("prescas.xls");
+    Sheet * sheet = book->getSheet(0);
+
+    const int LINE = 8;
+    const int OFFSET = 17;
+
+    //header
+    sheet->writeNum(LINE,OFFSET,PlonkDay->datum.month());
+    sheet->writeNum(LINE,OFFSET + 1,PlonkDay->datum.year());
+    sheet->writeNum(LINE,OFFSET + 2 , tool->ui->spinCislo->value());
+    sheet->writeStr(LINE,OFFSET + 3, tool->ui->editName->text().MAK());
+
+    //zbytek
+    int line = 12;
+    foreach (ClassDay * day, PlonkMonth->GetDays()) {
+        printDayPrescasXls(*day,line,sheet);
+    }
+
+    book->save(name.MAK());
+
+
+#if 0
     QPrinter printer(QPrinter::PrinterResolution);
 #ifndef QT_DEBUG
     QPrintDialog dialog(&printer, this);
@@ -615,6 +668,32 @@ void MainWindow::on_actionTiskJirasko_triggered()
     dc.insertText(trUtf8("\nVšechny výše uvedené přesčasové hodiny požaduji proplatit"));
 
     text->print(&printer);
+        #endif
+}
+
+void MainWindow::printDayPrescasXls(const ClassDay &day, int &line, Sheet *sheet)
+{
+    if(!day.Prichod1.isValid())
+        return;
+
+    const int OFFSET = 15;
+
+    foreach (ClassDay::prace_t * prace, day.GetPrace()) {
+        if (!prace->prescas)
+            continue;
+
+        QString text;
+        if (prace->nuceno)
+            text = "N";
+        else
+            text = "D";
+
+        sheet->writeStr(line,OFFSET,text.MAK());
+        sheet->writeStr(line,OFFSET + 1 , day.datum.toString("dd.MM.").MAK());
+        sheet->writeNum(line,OFFSET + 2 , prace->hodiny);
+        sheet->writeStr(line,OFFSET+ 3 , prace->Poznamka.MAK());
+        line++;
+    }
 }
 
 void MainWindow::printDayPrescas(const ClassDay &day, QTextTable *table)
@@ -646,6 +725,7 @@ void MainWindow::printDayPrescas(const ClassDay &day, QTextTable *table)
         tc = table->cellAt(row,3).firstCursorPosition();
         tc.insertText(prace->Poznamka);
     }
+
 }
 
 void MainWindow::on_editKorekce_textEdited(const QString &arg1)
@@ -684,6 +764,7 @@ void MainWindow::on_editKorekce_textEdited(const QString &arg1)
     pal.setColor(QPalette::Text,col);
     edit->setPalette(pal);
     //fillForm();
+
 }
 
 void MainWindow::on_editRucne_textEdited(const QString &arg1)
@@ -691,7 +772,7 @@ void MainWindow::on_editRucne_textEdited(const QString &arg1)
     SetTime(arg1,PlonkDay->Rucne,sender());
 }
 
-using namespace libxl;
+
 
 #ifdef __unix
 #define OFFSET 1
@@ -702,12 +783,12 @@ using namespace libxl;
 void MainWindow::on_actionFrankova_triggered()
 {
     Book * book = xlCreateBook();
-    Sheet * sheet = book->addSheet("Formulář hlášení");
+    Sheet * sheet = book->addSheet(MAKRO("Formulář hlášení"));
 
     //hlavička
-    sheet->writeStr(OFFSET,0,"Číslo hlášení");
-    sheet->writeStr(OFFSET,1,"Osobní číslo");
-    sheet->writeStr(OFFSET,2,"Odpracovaný čas");
+    sheet->writeStr(OFFSET,0,MAKRO("Číslo hlášení"));
+    sheet->writeStr(OFFSET,1,MAKRO("Osobní číslo"));
+    sheet->writeStr(OFFSET,2,MAKRO("Odpracovaný čas"));
 
     int i = OFFSET + 1;
 
@@ -748,15 +829,16 @@ void MainWindow::on_actionFrankova_triggered()
         i++;
     }
 
-    QString file = QFileDialog::getSaveFileName(this,trUtf8("Uložit"),QString(),QString("*.xls"));
+    QString pre = QString("Vykaz_%1_%2.xls").arg(tool->ui->editName->text()).arg(PlonkDay->datum.month());
+    QString file = QFileDialog::getSaveFileName(this,trUtf8("Uložit"),pre,QString("*.xls"));
     if (file.isEmpty())
         return;
 
     if (!file.endsWith(".xls"))
         file.append(".xls");
-    char jo[200];
-    strcpy(jo,file.toUtf8().data());
-    book->save(jo);
+
+
+    book->save(file.MAK());
 }
 
 void MainWindow::on_checkSvatek_clicked(bool checked)
