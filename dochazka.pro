@@ -18,14 +18,16 @@ SOURCES += main.cpp\
     classmonth.cpp \
     classyear.cpp \
     dialogprehled.cpp \
-    widgettoolbar.cpp
+    widgettoolbar.cpp \
+    mojetable.cpp
 
 HEADERS  += mainwindow.h \
     classday.h \
     classmonth.h \
     classyear.h \
     dialogprehled.h \
-    widgettoolbar.h
+    widgettoolbar.h \
+    mojetable.h
 
 FORMS    += mainwindow.ui \
     dialogprehled.ui \

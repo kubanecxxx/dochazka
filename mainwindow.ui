@@ -341,9 +341,12 @@ vykázáno</string>
      </layout>
     </item>
     <item>
-     <widget class="QTableWidget" name="table">
+     <widget class="MojeTable" name="table">
       <property name="alternatingRowColors">
        <bool>true</bool>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
       </property>
       <property name="rowCount">
        <number>0</number>
@@ -482,6 +485,13 @@ vykázáno</string>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>MojeTable</class>
+   <extends>QTableWidget</extends>
+   <header>mojetable.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>editPrichod1</tabstop>
   <tabstop>editOdchod1</tabstop>

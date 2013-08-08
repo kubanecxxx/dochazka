@@ -69,6 +69,7 @@ private:
     ClassDay * PlonkDay;
     ClassMonth * PlonkMonth;
     ClassYear * year;
+    QByteArray mByteArray;
 
     void SetTime(const QString & arg, QTime & time,QObject * widget);
     void LoadCombos(const ClassDay & day);

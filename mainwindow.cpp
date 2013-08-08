@@ -14,12 +14,7 @@
 #include <QTimer>
 #include <QCloseEvent>
 
-#define T_HODINY 0
-#define T_MX 1
-#define T_HLASENI 2
-#define T_POZN 3
-#define T_PRESCAS 4
-#define T_NUCENO 5
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
