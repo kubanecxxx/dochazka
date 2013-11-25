@@ -355,6 +355,8 @@ void MainWindow::on_calendarWidget_clicked(const QDate &date)
     PlonkMonth =  year->GetMonth(date);
 
     fillForm();
+    ui->editPrichod1->setFocus();
+    ui->editPrichod1->selectAll();
 }
 
 void MainWindow::LoadCombos(const ClassDay &day)

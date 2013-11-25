@@ -233,7 +233,7 @@ void ClassDay::ReadTextLine(const QString &line)
 
 float ClassDay::GetHodinyPrace() const
 {
-    QTime sest = QTime::fromString("6:00",TIMEFORMAT);
+   // QTime sest = QTime::fromString("6:00",TIMEFORMAT);
     const QTime obed1 = QTime::fromString("12:30",TIMEFORMAT);
     const QTime obed2 = QTime::fromString("13:00",TIMEFORMAT);
     const QTime vecere1 = QTime::fromString("18:00",TIMEFORMAT);
@@ -250,28 +250,42 @@ float ClassDay::GetHodinyPrace() const
         return 0;
 
     //saturovat od 6 rána
+    /*
     if (Prichod1 < sest)
         sec1 = sest.secsTo(Odchod1);
     else
         sec1 = Prichod1.secsTo(Odchod1);
+        */
+    sec1 = Prichod1.secsTo(Odchod1);
 
     //nepočitat přestávku od 11:30 do 12:00
     if (Prichod1 <= obed1 && Odchod1 >= obed2)
         sec1 -= 1800;
 
-    if (Prichod1 <= vecere1 && Odchod1 >= vecere2)
+    if (Prichod1 <= vecere1 && Odchod1 > vecere2)
         sec1 -= 1800;
 
     if (Prichod1 <= nocni1 && Odchod1 >= nocni2)
         sec1 -= 1800;
 
 
-    sec1 = floor(sec1/1800.0) * 1800;
+    //sec1 = floor(sec1/1800.0) * 1800;
 
     if (Prichod2 > Odchod1)
     {
         sec2 = Prichod2.secsTo(Odchod2);
-        sec2 = floor(sec2/1800.0) * 1800;
+
+
+        if (Prichod2 <= obed1 && Odchod2 >= obed2)
+            sec2 -= 1800;
+
+        if (Prichod2 <= vecere1 && Odchod2 > vecere2)
+            sec2 -= 1800;
+
+        if (Prichod2 <= nocni1 && Odchod2 >= nocni2)
+            sec2 -= 1800;
+
+        //sec2 = floor(sec2/1800.0) * 1800;
     }
     else
     {
@@ -279,6 +293,7 @@ float ClassDay::GetHodinyPrace() const
     }
 
     float cas = (sec1 + sec2);
+    cas = floor(cas/1800.0) * 1800;
     cas /= 3600.0;
     cas += (Korekce);
 

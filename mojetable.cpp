@@ -92,4 +92,10 @@ void MojeTable::keyPressEvent(QKeyEvent *event)
         //přihodit do tabulky
         timer->start(50);
     }
+    else if (event->key() == Qt::Key_Delete)
+    {
+
+    }
+
+    QTableWidget::keyPressEvent(event);
 }

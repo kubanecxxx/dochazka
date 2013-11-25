@@ -342,6 +342,9 @@ vykázáno</string>
     </item>
     <item>
      <widget class="MojeTable" name="table">
+      <property name="editTriggers">
+       <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+      </property>
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
@@ -493,22 +496,24 @@ vykázáno</string>
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>calendarWidget</tabstop>
   <tabstop>editPrichod1</tabstop>
   <tabstop>editOdchod1</tabstop>
   <tabstop>editPrichod2</tabstop>
   <tabstop>editOdchod2</tabstop>
+  <tabstop>spinKorekce</tabstop>
   <tabstop>editRucne</tabstop>
   <tabstop>checkDovolena</tabstop>
+  <tabstop>checkSvatek</tabstop>
   <tabstop>table</tabstop>
-  <tabstop>calendarWidget</tabstop>
-  <tabstop>editVpraci</tabstop>
-  <tabstop>editMVpraci</tabstop>
   <tabstop>editMVykazano</tabstop>
   <tabstop>editMPVykazano</tabstop>
   <tabstop>editMRegul</tabstop>
   <tabstop>editMDovol</tabstop>
   <tabstop>editPrescas</tabstop>
   <tabstop>editVykazano</tabstop>
+  <tabstop>editVpraci</tabstop>
+  <tabstop>editMVpraci</tabstop>
  </tabstops>
  <resources>
   <include location="zdroje.qrc"/>
