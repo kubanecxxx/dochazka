@@ -85,6 +85,7 @@ void MainWindow::fillFormDay(const ClassDay &day)
     ui->editRucne->setText(day.Rucne.toString(TIMEFORMAT));
     //ui->editKorekce->setText(QString::number((double)day.Korekce));
     ui->spinKorekce->setValue(day.Korekce);
+    ui->spinAnglictina->setValue(day.English);
 
     //vyplnit hodiny vykázany a vpráci
 
@@ -846,12 +847,37 @@ void MainWindow::on_checkSvatek_clicked(bool checked)
 
 void MainWindow::on_spinKorekce_editingFinished()
 {
-   // PlonkDay->Korekce = ui->spinKorekce->value();
-   // fillForm();
+
 }
 
 void MainWindow::on_spinKorekce_valueChanged(double arg1)
 {
     PlonkDay->Korekce = arg1;
+    ui->spinKorekce->setSuffix(Suffix(arg1));
     fillForm();
+}
+
+void MainWindow::on_spinAnglictina_valueChanged(double arg1)
+{
+    PlonkDay->English = arg1;
+    ui->spinAnglictina->setSuffix(Suffix(arg1));
+    fillForm();
+}
+
+QString MainWindow::Suffix(float hodiny)
+{
+    QString temp;
+    if ((int)((hodiny / 0.5)) % 2 == 0)
+        temp = " hodin";
+    else
+        temp = " hodiny";
+
+    if (hodiny == 2.0 || hodiny == 3.0 || hodiny == 4.0)
+        temp = " hodiny";
+
+    if (hodiny == 1.0)
+        temp = " hodina";
+    if (hodiny == 0)
+        temp = " hodin";
+    return temp;
 }

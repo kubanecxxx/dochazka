@@ -3,9 +3,10 @@
 #include <math.h>
 
 ClassDay::ClassDay(const QDate & date):
-    datum(date),
-    dovolena(false),
     Korekce(0),
+    English(0),
+    datum(date),
+  dovolena(false),
     svatek(false)
 {
 
@@ -24,7 +25,11 @@ ClassDay::ClassDay(ClassDay &cpy):
     Prichod1(cpy.Prichod1),
     Prichod2(cpy.Prichod2),
     Odchod1(cpy.Odchod1),
-    Odchod2(cpy.Odchod2)
+    Odchod2(cpy.Odchod2),
+    Korekce(cpy.Korekce),
+    English(cpy.English),
+    dovolena(cpy.dovolena),
+    svatek(cpy.svatek)
 {
     for (int i = 0; i < cpy.prace.count(); i++)
     {
@@ -126,6 +131,7 @@ bool  ClassDay::SaveXml(QDomElement *el)
     el->setAttribute("dovolena",dovolena);
     el->setAttribute("korekce" , Korekce);
     el->setAttribute("svatek",svatek);
+    el->setAttribute("anglictina",English);
     el->setAttribute("rucne",Rucne.toString(TIMEFORMAT));
     //el->setAttribute("pocetPraci",prace.count());
 
@@ -171,6 +177,8 @@ void ClassDay::LoadXml(QDomElement *el)
     dovolena = el->attribute("dovolena").toInt();
     Korekce = el->attribute("korekce").toDouble();
     svatek = el->attribute("svatek").toInt();
+    English = el->attribute("anglictina").toDouble();
+
 
     QDomElement prace = el->firstChildElement("prace");
 

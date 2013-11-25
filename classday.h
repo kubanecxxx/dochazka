@@ -52,6 +52,7 @@ public:
     QTime Odchod1, Odchod2;
     QTime Rucne;
     float Korekce;
+    float English;
 
     prace_t * AddPrace();
     inline void DelPrace(int i) {prace.removeAt(i);}

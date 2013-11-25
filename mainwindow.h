@@ -51,6 +51,8 @@ private slots:
     void on_spinKorekce_valueChanged(double arg1);
     void on_prehledDialogFinished(int);
 
+    void on_spinAnglictina_valueChanged(double arg1);
+
 private:
     Ui::MainWindow *ui;
 
@@ -76,6 +78,7 @@ private:
 
     WidgetToolBar * tool;
     void closeEvent(QCloseEvent *evt);
+    QString Suffix(float hodiny);
 };
 
 #endif // MAINWINDOW_H

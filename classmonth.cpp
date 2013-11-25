@@ -166,6 +166,7 @@ float ClassMonth::GetVykazanoHours() const
     {
         it.next();
         hodiny += it.value()->GetHodinyVykazano();
+        hodiny += it.value()->English;
     }
 
     return hodiny;
@@ -180,6 +181,7 @@ float ClassMonth::GetVykazanoPrescas() const
     {
         it.next();
         hodiny += it.value()->GetHodinyPrescasVykazano();
+        hodiny -= it.value()->English;
     }
 
     return hodiny;
