@@ -417,15 +417,15 @@ void MainWindow::fillFormMonth(ClassMonth & month)
 void MainWindow::recolorCalendar(ClassMonth &month,QDate ch)
 {
     //kalendář vyplnit správnejma barvama
-    for (int i = 1; i <= QDate::currentDate().daysInMonth(); i++)
+    for (int i = 1; i <= ch.daysInMonth(); i++)
     {
         QDate date(ch.year(),ch.month(),i);
         bool bold = !month.GetDay(date)->IsOk();
 
         QTextCharFormat format = ui->calendarWidget->dateTextFormat(date);
         QBrush brush;
-        if (i <= QDate::currentDate().day() && bold &&
-                PlonkDay->datum.month() == QDate::currentDate().month())
+        //osetrit budoucnost
+        if (bold && QDate::currentDate() >= month.GetDay(i)->datum)
             brush.setColor(Qt::cyan);
         else
             brush.setColor(Qt::white);
