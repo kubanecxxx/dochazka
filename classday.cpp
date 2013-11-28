@@ -7,7 +7,8 @@ ClassDay::ClassDay(const QDate & date):
     English(0),
     datum(date),
   dovolena(false),
-    svatek(false)
+    svatek(false),
+    Dojizdeni(PUPIK)
 {
 
 }
@@ -29,7 +30,8 @@ ClassDay::ClassDay(ClassDay &cpy):
     Korekce(cpy.Korekce),
     English(cpy.English),
     dovolena(cpy.dovolena),
-    svatek(cpy.svatek)
+    svatek(cpy.svatek),
+    Dojizdeni(cpy.Dojizdeni)
 {
     for (int i = 0; i < cpy.prace.count(); i++)
     {
@@ -133,6 +135,7 @@ bool  ClassDay::SaveXml(QDomElement *el)
     el->setAttribute("svatek",svatek);
     el->setAttribute("anglictina",English);
     el->setAttribute("rucne",Rucne.toString(TIMEFORMAT));
+    el->setAttribute("dojizdeni",Dojizdeni);
     //el->setAttribute("pocetPraci",prace.count());
 
     foreach(prace_t * prac, prace)
@@ -178,6 +181,7 @@ void ClassDay::LoadXml(QDomElement *el)
     Korekce = el->attribute("korekce").toDouble();
     svatek = el->attribute("svatek").toInt();
     English = el->attribute("anglictina").toDouble();
+    Dojizdeni = static_cast<dojizdeni_t>(el->attribute("dojizdeni").toInt());
 
 
     QDomElement prace = el->firstChildElement("prace");

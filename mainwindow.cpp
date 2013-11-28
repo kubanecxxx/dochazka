@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    doj = NULL;
+
 
     //jméno
     tool = new WidgetToolBar(this);
@@ -28,6 +30,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSaveName,SIGNAL(triggered()),
             tool,SLOT(SaveDataToFile()));
     connect(tool,SIGNAL(DovolenaChanged(int)),this,SLOT(on_dovolenaChanged(int)));
+
+
+    if (tool->ui->spinCislo->value() == 89011231)
+    {
+        doj = new dojizdeni(&PlonkMonth,&PlonkDay,this);
+        ui->toolBar->addWidget(doj);
+        ui->toolBar->addSeparator();
+    }
 
     year = new ClassYear;
     year->SetVolnaDovolena(tool->ui->spinDovolena->value());
@@ -46,6 +56,8 @@ void MainWindow::fillForm()
     setSvatek(PlonkDay->svatek);
     setDovolena(PlonkDay->dovolena);
     fillFormDay(*PlonkDay);
+    if (doj)
+        doj->refresh();
     LoadCombos(*PlonkDay);
     fillFormMonth(*PlonkMonth);
     recolorCalendar(*PlonkMonth,PlonkDay->datum);
