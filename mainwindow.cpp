@@ -14,7 +14,7 @@
 #include <QTimer>
 #include <QCloseEvent>
 
-#define VERSION "v1.1_25.11.2013"
+#define VERSION "v1.2_29.11.2013"
 
 
 
