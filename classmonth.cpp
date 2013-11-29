@@ -166,7 +166,37 @@ float ClassMonth::GetVykazanoHours() const
     {
         it.next();
         hodiny += it.value()->GetHodinyVykazano();
+        //hodiny += it.value()->English;
+    }
+
+    return hodiny;
+}
+
+float ClassMonth::GetVykazanoHoursEng() const
+{
+    QMapIterator<QDate,ClassDay*> it(days);
+    float hodiny = 0;
+
+    while(it.hasNext())
+    {
+        it.next();
+        hodiny += it.value()->GetHodinyVykazano();
         hodiny += it.value()->English;
+    }
+
+    return hodiny;
+}
+
+float ClassMonth::GetVykazanoPrescasEng() const
+{
+    QMapIterator<QDate,ClassDay*> it(days);
+    float hodiny = 0;
+
+    while(it.hasNext())
+    {
+        it.next();
+        hodiny += it.value()->GetHodinyPrescasVykazano();
+        hodiny -= it.value()->English;
     }
 
     return hodiny;
@@ -181,7 +211,22 @@ float ClassMonth::GetVykazanoPrescas() const
     {
         it.next();
         hodiny += it.value()->GetHodinyPrescasVykazano();
-        hodiny -= it.value()->English;
+        //hodiny -= it.value()->English;
+    }
+
+    return hodiny;
+}
+
+float ClassMonth::GetEnglish() const
+{
+    QMapIterator<QDate,ClassDay*> it(days);
+    float hodiny = 0;
+
+    while(it.hasNext())
+    {
+        it.next();
+        //hodiny += it.value()->GetHodinyPrescasVykazano();
+        hodiny += it.value()->English;
     }
 
     return hodiny;
@@ -228,5 +273,5 @@ bool ClassMonth::IsVykazanoVPraci() const
 
 bool ClassMonth::IsVykazanoRegulerne() const
 {
-    return (GetEstimatedHours() == GetVykazanoHours());
+    return (GetEstimatedHours() == GetVykazanoHoursEng());
 }

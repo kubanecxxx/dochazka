@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Docházka</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
@@ -337,15 +337,78 @@ vykázáno</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Vykázáno
+s angličtinou</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>Přesčasy 
+vykázáno 
+s angličtinou</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
           <widget class="QLabel" name="label_12">
            <property name="text">
             <string>Dovolená</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="7" column="1">
           <widget class="QLineEdit" name="editMDovol">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="editMVykEng">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="editMPresEng">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_20">
+           <property name="text">
+            <string>Angličtina</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="editEnglish">
            <property name="minimumSize">
             <size>
              <width>125</width>

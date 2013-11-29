@@ -29,6 +29,10 @@ void DialogPrehled::Refresh()
         if (day->Prichod1.isValid() || day->dovolena)
         {
             date = new QTreeWidgetItem;
+
+            if (!day->IsOk())
+                date->setBackgroundColor(0,Qt::cyan);
+
             date->setFlags(Qt::ItemIsEnabled);
             ui->treeWidget->addTopLevelItem(date);
             date->setData(0,Qt::DisplayRole,day->datum);

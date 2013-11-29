@@ -18,6 +18,9 @@ public:
     float GetHoursInWork() const;
     float GetVykazanoHours() const;
     float GetVykazanoPrescas() const;
+    float GetVykazanoPrescasEng() const;
+    float GetVykazanoHoursEng() const;
+    float GetEnglish() const;
     int GetVybranaDovolena(int * svatky = NULL) const;
     int GetWorkCount() const;
 

@@ -14,6 +14,8 @@
 #include <QTimer>
 #include <QCloseEvent>
 
+#define VERSION "v1.1_25.11.2013"
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -34,6 +36,9 @@ MainWindow::MainWindow(QWidget *parent) :
     PlonkDay = year->GetDay(QDate::currentDate());
     PlonkMonth = year->GetMonth(QDate::currentDate());
     fillForm();
+
+    //setWindowTitle(windowTitle() + " "+ VERSION);
+    ui->toolBar->setToolTip(VERSION);
 }
 
 MainWindow::~MainWindow()
@@ -395,6 +400,9 @@ void MainWindow::fillFormMonth(ClassMonth & month)
     ui->editMVpraci->setText(QString("%1").arg(month.GetHoursInWork()));
     ui->editMPVykazano->setText(QString("%1").arg(month.GetVykazanoPrescas()));
     ui->editMDovol->setText(QString("%1").arg(year->GetVolnaDovolena()));
+    ui->editMPresEng->setText(QString("%1").arg(month.GetVykazanoPrescasEng()));
+    ui->editMVykEng->setText(QString("%1").arg(month.GetVykazanoHoursEng()));
+    ui->editEnglish->setText(QString("%1").arg(month.GetEnglish()));
 
     QPalette pal;
     QColor col;
