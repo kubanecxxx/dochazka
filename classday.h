@@ -35,6 +35,7 @@ public:
     };      //řádek v tabulce
 
     typedef prace_t prace_t;
+    typedef enum {PUPIK, AUTO,KOLO, JINAK} dojizdeni_t;
 
     //počet hodiny v práci is přesčasem
     float GetHodinyPrace() const;
@@ -53,6 +54,7 @@ public:
     QTime Rucne;
     float Korekce;
     float English;
+    dojizdeni_t Dojizdeni;
 
     prace_t * AddPrace();
     inline void DelPrace(int i) {prace.removeAt(i);}

@@ -7,6 +7,7 @@
 #include "classyear.h"
 #include "widgettoolbar.h"
 #include "libxl.h"
+#include "dojizdeni.h"
 
 namespace Ui {
 class MainWindow;
@@ -72,6 +73,8 @@ private:
     WidgetToolBar * tool;
     void closeEvent(QCloseEvent *evt);
     QString Suffix(float hodiny);
+
+    dojizdeni * doj;
 };
 
 #endif // MAINWINDOW_H

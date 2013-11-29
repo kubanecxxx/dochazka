@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     classyear.cpp \
     dialogprehled.cpp \
     widgettoolbar.cpp \
-    mojetable.cpp
+    mojetable.cpp \
+    dojizdeni.cpp
 
 HEADERS  += mainwindow.h \
     classday.h \
@@ -27,11 +28,13 @@ HEADERS  += mainwindow.h \
     classyear.h \
     dialogprehled.h \
     widgettoolbar.h \
-    mojetable.h
+    mojetable.h \
+    dojizdeni.h
 
 FORMS    += mainwindow.ui \
     dialogprehled.ui \
-    widgettoolbar.ui
+    widgettoolbar.ui \
+    dojizdeni.ui
 
 unix:!macx: LIBS += -lxl
 
