@@ -11,7 +11,7 @@ ClassYear::ClassYear():
     //načist ze souboru
     QString cesta = QFileInfo( QCoreApplication::applicationFilePath() ).absolutePath();
     file = new QFile(cesta +  "/soubor.txt");
-    xml = new QFile(cesta +  "/dochazka.xml");
+    xml = new QFile(cesta +  "/dochazka2014.xml");
 
     LoadXml();
     //LoadFile();
@@ -49,7 +49,7 @@ ClassMonth * ClassYear::GetMonth(int mon)
 ClassMonth * ClassYear::AddMonth(int mont)
 {
     QDate date;
-    date.setDate(2013,mont,1);
+    date.setDate(2014,mont,1);
     ClassMonth * mon = new ClassMonth(date);
     mesice.insert(mont,mon);
 
@@ -62,7 +62,7 @@ void ClassYear::SaveXml() const
     QDomElement el = doc.createElement("xml");
     QDomElement year = doc.createElement("rok");
 
-    year.setAttribute("cislo",2013);
+    year.setAttribute("cislo",2014);
     el.appendChild(year);
 
     QMapIterator<int, ClassMonth *> it(mesice);

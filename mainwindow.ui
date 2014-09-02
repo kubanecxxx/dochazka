@@ -227,14 +227,14 @@
         </property>
         <property name="minimumDate">
          <date>
-          <year>2013</year>
+          <year>2014</year>
           <month>1</month>
           <day>1</day>
          </date>
         </property>
         <property name="maximumDate">
          <date>
-          <year>2013</year>
+          <year>2014</year>
           <month>12</month>
           <day>31</day>
          </date>
@@ -495,7 +495,7 @@ s angličtinou</string>
      <x>0</x>
      <y>0</y>
      <width>801</width>
-     <height>23</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>
